@@ -83,7 +83,7 @@ def pridobi_spletno_stran(naslov=KRAJI["Ljubljana"], kraj="Ljubljana"):
 
 
 def izpis(root, kraj, opis=OPIS):
-    print(f'\nPodatki za mesto {kraj}.')
+    print(f'Podatki za mesto {kraj}.')
     for i in KATEGORIJE:
         try:
             p = root.xpath(i[0])[0].text
@@ -153,6 +153,7 @@ def main():
     args = argumenti()
     if args.izbira:
         naslov = izbira_kraja(KRAJI)[1]
+        print('')
     elif args.novomesto:
         naslov = "Novo mesto"
     elif args.rogaska:

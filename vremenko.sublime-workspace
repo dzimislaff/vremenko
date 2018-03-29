@@ -167,16 +167,7 @@
 			"file": "vremenko.py",
 			"settings":
 			{
-				"buffer_size": 5865,
-				"encoding": "UTF-8",
-				"line_ending": "Windows"
-			}
-		},
-		{
-			"file": "class-vremenko.py",
-			"settings":
-			{
-				"buffer_size": 2938,
+				"buffer_size": 5584,
 				"encoding": "UTF-8",
 				"line_ending": "Windows"
 			}
@@ -225,10 +216,14 @@
 	"build_varint": "",
 	"command_palette":
 	{
-		"height": 325.0,
+		"height": 393.0,
 		"last_filter": "",
 		"selected_items":
 		[
+			[
+				"",
+				"Anaconda: Disable linting on this file"
+			],
 			[
 				"term",
 				"Terminal: Open"
@@ -294,10 +289,6 @@
 				"Anaconda: Disable linting on this file"
 			],
 			[
-				"",
-				"Anaconda: Disable linting on this file"
-			],
-			[
 				"anacon",
 				"Anaconda: Enable linting on this file"
 			],
@@ -338,6 +329,8 @@
 	],
 	"file_history":
 	[
+		"/home/nejc/Dokumenti/bin/vremenko/class-vremenko.py",
+		"/home/nejc/Dokumenti/bin/vremenko/ost/vremenko-path.py",
 		"/home/nejc/Dokumenti/bin/vremenko/class-vremenko-2.py"
 	],
 	"find":
@@ -356,6 +349,9 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"son",
+			"kraj",
+			"izbira",
 			"gor",
 			"Š",
 			"date",
@@ -437,15 +433,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 5865,
+						"buffer_size": 5584,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								5373,
-								5373
+								4573,
+								4573
 							]
 						],
 						"settings":
@@ -459,6 +455,14 @@
 								{
 									"characters": ".",
 									"selector": "source.python - string - constant.numeric"
+								},
+								{
+									"characters": ".",
+									"selector": "source.python - string - constant.numeric"
+								},
+								{
+									"characters": ".",
+									"selector": "source.python - string - constant.numeric"
 								}
 							],
 							"syntax": "Packages/Python/Python.sublime-syntax",
@@ -466,7 +470,7 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 2961.0,
+						"translation.y": 2778.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 0,
@@ -479,30 +483,45 @@
 			"sheets":
 			[
 				{
-					"buffer": 1,
-					"file": "class-vremenko.py",
+					"buffer": 0,
+					"file": "vremenko.py",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 2938,
+						"buffer_size": 5584,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								0,
-								0
+								134,
+								134
 							]
 						],
 						"settings":
 						{
+							"auto_complete_triggers":
+							[
+								{
+									"characters": ".",
+									"selector": "source.python - string - comment - constant.numeric"
+								},
+								{
+									"characters": ".",
+									"selector": "source.python - string - constant.numeric"
+								},
+								{
+									"characters": ".",
+									"selector": "source.python - string - constant.numeric"
+								}
+							],
 							"syntax": "Packages/Python/Python.sublime-syntax",
 							"tab_size": 4,
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 0.0,
+						"translation.y": 2772.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 1,
@@ -646,7 +665,7 @@
 	"show_minimap": false,
 	"show_open_files": false,
 	"show_tabs": true,
-	"side_bar_visible": true,
+	"side_bar_visible": false,
 	"side_bar_width": 194.0,
 	"status_bar_visible": true,
 	"template_settings":
