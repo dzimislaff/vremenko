@@ -83,23 +83,23 @@ def pridobi_spletno_stran(naslov=KRAJI["Ljubljana"], kraj="Ljubljana"):
 
 
 def izpis(root, kraj, opis=OPIS):
-    print('Podatki za mesto ' + kraj + '.')
+    print(f'\nPodatki za mesto {kraj}.')
     for i in KATEGORIJE:
         try:
             p = root.xpath(i[0])[0].text
             # opis vremena
             if i == KATEGORIJE[0]:
-                print('\t' + i[1] + ': ' + opis[p] + '.')
+                print(f'\t{i[1]}: {opis[p]}.')
             # z enoto
             elif len(i) == 3:
-                print('\t' + i[1] + ': ' + p + ' ' + i[2] + '.')
+                print(f'\t{i[1]}: {p} {i[2]}.')
             # brez enote
             else:
-                print('\t' + i[1] + ': ' + p + '.')
+                print(f'\t{i[1]}: {p}.')
         except TypeError:
-            print('\t' + i[1] + ': Ni podatka. (TypeError)')
+            print(f'\t{i[1]}: Ni podatka. (TypeError)')
         except KeyError:
-            print('\t' + i[1] + ': Ni podatka. (KeyError)')
+            print(f'\t{i[1]}: Ni podatka. (KeyError)')
         except IndexError:
             print('Podatkov za ta kraj trenutno žal ni.')
             break
@@ -116,9 +116,9 @@ def izbira_kraja(KRAJI):
     while True:
         print('\nPodatki za kraje, ki so na voljo:')
         for i in range(len(moznosti)):
-            print('\t' + '(' + str(i + 1) + ')  ' + moznosti[i])
+            print(f'\t({str(i + 1)})  {moznosti[i]}')
         try:
-            vnos = int(input('Vnesi izbiro: (1-' + str(len(moznosti)) + ')\n'))
+            vnos = int(input(f'Vnesi izbiro: (1-{str(len(moznosti))})\t'))
             if vnos < 1:
                 continue
         except (ValueError, IndexError):
@@ -152,20 +152,18 @@ def argumenti():
 def main():
     args = argumenti()
     if args.izbira:
-        naslov = izbira_kraja(KRAJI)
-        kraj = naslov[1]
-        root = pridobi_spletno_stran(naslov[0])
-        # print('\n--- Izbrali ste podatke za ' + naslov[1] + '. ---')
+        naslov = izbira_kraja(KRAJI)[1]
     elif args.novomesto:
-        kraj = "Novo mesto"
-        root = pridobi_spletno_stran(KRAJI[kraj])
+        naslov = "Novo mesto"
     elif args.rogaska:
-        kraj = 'Rogaška Slatina'
-        root = pridobi_spletno_stran(KRAJI[kraj])
+        naslov = 'Rogaška Slatina'
     else:
-        kraj = 'Ljubljana'
-        root = pridobi_spletno_stran(KRAJI['Ljubljana'])
-    izpis(root, kraj)
+        naslov = 'Ljubljana'
+    try:
+        root = pridobi_spletno_stran(KRAJI[naslov])
+        izpis(root, naslov)
+    except requests.exceptions.ConnectionError:
+        print("\nPodatki so trenutno nedosegljivi.\n")
 
 
 if __name__ == '__main__':
