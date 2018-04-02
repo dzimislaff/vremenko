@@ -31,10 +31,13 @@ KATEGORIJE = [
     ['/data/metData/nn_icon-wwsyn_icon', 'Opis vremena'],
     ['/data/metData/t', 'Temperatura', '°C'],
     ['/data/metData/rhavg', 'Relativna vlažnost', '%'],
+    ['/data/metData/rr_val', 'Vsota padavin v časovnem intervalu', 'mm'],
     ['/data/metData/mslavg', 'Tlak', 'hPa'],
     ['/data/metData/ddavg_longText', 'Smer vetra'],
     ['/data/metData/ffavg_val', 'Hitrost vetra', 'm/s'],
-    ['/data/metData/sunset', 'Sončni zahod']
+    ['/data/metData/sunrise', 'Sončni vzhod'],
+    ['/data/metData/sunset', 'Sončni zahod'],
+    ['/data/metData/gSunRadavg', 'Povprečno sončno obsevanje', 'W/m2'],
 ]
 
 # prevod oznak za vremenske razmere

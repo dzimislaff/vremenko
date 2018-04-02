@@ -335,7 +335,7 @@
 	],
 	"find":
 	{
-		"height": 43.0
+		"height": 29.0
 	},
 	"find_in_files":
 	{
@@ -644,7 +644,7 @@
 		[
 			[
 				"",
-				"~/Dokumenti/bin/transmission/torrenti.sublime-project"
+				"~/Dokumenti/bin/napoved/napoved.sublime-project"
 			]
 		],
 		"width": 475.0
