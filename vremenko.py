@@ -16,13 +16,18 @@ KRAJI = {
     'Novo mesto': (BASE + 'NOVO-MES_latest.xml'),
     'Rogaška Slatina': (BASE + 'ROGAS-SLA_latest.xml'),
     'Metlika': (BASE + 'METLIKA_latest.xml'),
-    'Celje': (BASE + 'CELJE_MEDLOG_latest.xml'),
-    'Kredarica': (BASE + 'KREDA-ICA_latest.xml'),
-    'Kočevje': (BASE + 'KOCEVJE_latest.xml'),
+    'Črnomelj': (BASE + 'CRNOMELJ_latest.xml'),
+    'Metlika': (BASE + 'METLIKA_latest.xml'),
     'Koper': (BASE + 'KOPER_KAPET-IJA_latest.xml'),
+    'Celje': (BASE + 'CELJE_MEDLOG_latest.xml'),
+    'Kočevje': (BASE + 'KOCEVJE_latest.xml'),
     'Maribor': (BASE + 'MARIBOR_VRBAN-PLA_latest.xml'),
     'Podčetrtek': (BASE + 'PODCE-TEK_ATOMS-TOP_latest.xml'),
-    'Bilje pri Novi Gorici': (BASE + 'NOVA-GOR_BILJE_latest.xml')
+    'Bilje pri Novi Gorici': (BASE + 'NOVA-GOR_BILJE_latest.xml'),
+    'Marinča vas': (BASE + 'MARIN-VAS_latest.xml'),
+    'Nanos (1242 m)': (BASE + 'NANOS_latest.xml'),
+    'Rogla (1494 m)': (BASE + 'ROGLA_latest.xml'),
+    'Kredarica (2514 m)': (BASE + 'KREDA-ICA_latest.xml'),
 }
 
 # seznam s potjo do podatka (xpath) v XML-datoteki in imenom kategorije

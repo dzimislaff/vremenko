@@ -4,6 +4,10 @@
 		"selected_items":
 		[
 			[
+				"met",
+				"metData"
+			],
+			[
 				"te",
 				"tekst\tstatement"
 			],
@@ -167,7 +171,7 @@
 			"file": "vremenko.py",
 			"settings":
 			{
-				"buffer_size": 5584,
+				"buffer_size": 5778,
 				"encoding": "UTF-8",
 				"line_ending": "Windows"
 			}
@@ -433,15 +437,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 5584,
+						"buffer_size": 5778,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								4573,
-								4573
+								4767,
+								4767
 							]
 						],
 						"settings":
@@ -470,10 +474,10 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 2778.0,
+						"translation.y": 1560.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 0,
+					"stack_index": 1,
 					"type": "text"
 				}
 			]
@@ -488,15 +492,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 5584,
+						"buffer_size": 5778,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								134,
-								134
+								3807,
+								3807
 							]
 						],
 						"settings":
@@ -521,10 +525,10 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 2772.0,
+						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 1,
+					"stack_index": 0,
 					"type": "text"
 				}
 			]
@@ -570,7 +574,7 @@
 	"menu_visible": true,
 	"output.exec":
 	{
-		"height": 239.0
+		"height": 252.0
 	},
 	"output.find_results":
 	{
@@ -644,7 +648,7 @@
 		[
 			[
 				"",
-				"~/Dokumenti/bin/napoved/napoved.sublime-project"
+				"~/Dokumenti/bin/atelje/atelje.sublime-project"
 			]
 		],
 		"width": 475.0
@@ -658,7 +662,7 @@
 		],
 		"width": 0.0
 	},
-	"selected_group": 0,
+	"selected_group": 1,
 	"settings":
 	{
 	},
