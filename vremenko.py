@@ -30,6 +30,25 @@ KRAJI = {
     'Kredarica (2514 m)': (BASE + 'KREDA-ICA_latest.xml'),
 }
 
+ALT_KRAJI = {
+    'Ljubljana': (BASE + 'LJUBL-ANA_BEZIGRAD_latest.xml'),
+    'Novo mesto': (BASE + 'NOVO-MES_latest.xml'),
+    'Rogaška Slatina': (BASE + 'ROGAS-SLA_latest.xml'),
+    'Metlika': (BASE + 'METLIKA_latest.xml'),
+    'Črnomelj': (BASE + 'CRNOMELJ_latest.xml'),
+    'Metlika': (BASE + 'METLIKA_latest.xml'),
+    'Koper': (BASE + 'KOPER_KAPET-IJA_latest.xml'),
+    'Celje': (BASE + 'CELJE_MEDLOG_latest.xml'),
+    'Kočevje': (BASE + 'KOCEVJE_latest.xml'),
+    'Maribor': (BASE + 'MARIBOR_VRBAN-PLA_latest.xml'),
+    'Podčetrtek': (BASE + 'PODCE-TEK_ATOMS-TOP_latest.xml'),
+    'Bilje pri Novi Gorici': (BASE + 'NOVA-GOR_BILJE_latest.xml'),
+    'Marinča vas': (BASE + 'MARIN-VAS_latest.xml'),
+    'Nanos (1242 m)': (BASE + 'NANOS_latest.xml'),
+    'Rogla (1494 m)': (BASE + 'ROGLA_latest.xml'),
+    'Kredarica (2514 m)': (BASE + 'KREDA-ICA_latest.xml'),
+}
+
 # seznam s potjo do podatka (xpath) v XML-datoteki in imenom kategorije
 # prenos v ločeno datoteko?
 KATEGORIJE = [
@@ -152,13 +171,26 @@ def argumenti():
                         help="prikaže podatke za Ljubljano", default=False)
     parser.add_argument("-nm", "--novomesto", action="store_true",
                         help="podatki za Novo mesto", default=False)
-    parser.add_argument("-rs", "--rogaska", action="store_true",
+    parser.add_argument("-rs", "--rogaskaslatina", action="store_true",
                         help="podatki za Rogaško Slatino", default=False)
     return parser.parse_args()
 
 
 def main():
     args = argumenti()
+
+    x = vars(args)
+
+    args.rogaska = True
+
+    for i in x.keys():
+        if x[i]:
+            print(i)
+
+    # TODO:
+        # - spremeni slovar KRAJI => delovni je ALT_KRAJI zaradi imen
+        # - 
+
     if args.izbira:
         naslov = izbira_kraja(KRAJI)[1]
         print('')
