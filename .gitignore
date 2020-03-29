@@ -1,4 +1,7 @@
-__pycache__
-ost
-
-vremenko.sublime-workspace
+__pycache__/
+ost/
+.idea/
+bin/
+lib/
+lib64
+pyvenv.cfg

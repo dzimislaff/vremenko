@@ -9,6 +9,8 @@ from lxml import etree
 
 BASE = ('http://meteo.arso.gov.si/uploads/probase/www/observ/surface/text/sl/'
         'observationAms_')
+ONESNAŽENOST = 'http://www.arso.gov.si/xml/zrak/ones_zrak_urni_podatki_zadnji.xml'
+
 
 # slovar s kombinacijo povezav: osnova + končnica
 KRAJI = {
@@ -69,8 +71,17 @@ OPIS = {
     'overcast_lightSN': 'oblačno z manjšim sneženjem'
 }
 
+ŠIFRE_ONESNAŽENOSTI = {
+    "Ljubljana": "E21",
+    "Maribor": "E22",
+    "Celje": "E23",
+    "Nova Gorica": "E25",
+    "Koper": "E30",
+}
 
-def pridobi_spletno_stran(naslov=KRAJI["Ljubljana"], kraj="Ljubljana"):
+
+def pridobi_spletno_stran(naslov=KRAJI["Ljubljana"],
+                          kraj="Ljubljana"):
     r = requests.get(naslov)
     '''
     [38:] zaradi konflikta med deklaracijo kodiranja in znaki
@@ -90,7 +101,27 @@ def pridobi_spletno_stran(naslov=KRAJI["Ljubljana"], kraj="Ljubljana"):
     return stran
 
 
-def izpis(root, kraj, opis=OPIS):
+def onesnaženost_zraka(kraj='Ljubljana',
+                       naslov=ONESNAŽENOST,
+                       seznam=ŠIFRE_ONESNAŽENOSTI):
+    šifra = seznam[kraj]
+    r = requests.get(naslov)
+    stran = etree.fromstring(bytes(r.text, encoding='utf8'))
+    try:
+        pm10 = stran.xpath(f'/arsopodatki/postaja[@sifra="{šifra}"]/pm10')[0].text
+        # pm10 = stran.xpath(f'/arsopodatki/postaja[@sifra="M16"]/pm10')[0].text
+    except IndexError:
+        pm10 = None
+    try:
+        o3 = stran.xpath(f'/arsopodatki/postaja["{šifra}"]/o3')[0].text
+    except IndexError:
+        o3 = None
+    return (pm10, o3)
+
+
+def izpis(root,
+          kraj,
+          opis=OPIS):
     print(f'Podatki za mesto {kraj}.')
     for i in KATEGORIJE:
         try:
@@ -111,6 +142,17 @@ def izpis(root, kraj, opis=OPIS):
         except IndexError:
             print('Podatkov za ta kraj trenutno žal ni.')
             break
+    if kraj in ('Ljubljana', 'Maribor', 'Celje', 'Koper', 'Nova Gorica'):
+        o = onesnaženost_zraka(kraj)
+        if o[0]:
+            print(f'\tPM10: {o[0]} µg/m³ (mejna vrednost je 50)')
+        else:
+            print('\tNi podatka.')
+        if o[1]:
+            print(f'\tO3: {o[1]} µg/m³ (mejna vrednost je 180)')
+        else:
+            print('\tNi podatka.')
+
 
 
 def izbira_kraja(KRAJI):
