@@ -1,158 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: 'UTF-8' -*-
 
-import requests
 import argparse
-from lxml import etree
-# from datetime import datetime
-
-
-BASE = ('http://meteo.arso.gov.si/uploads/probase/www/observ/surface/text/sl/'
-        'observationAms_')
-ONESNAŽENOST = 'http://www.arso.gov.si/xml/zrak/ones_zrak_urni_podatki_zadnji.xml'
-
-
-# slovar s kombinacijo povezav: osnova + končnica
-KRAJI = {
-    'Ljubljana': (BASE + 'LJUBL-ANA_BEZIGRAD_latest.xml'),
-    'Novo mesto': (BASE + 'NOVO-MES_latest.xml'),
-    'Rogaška Slatina': (BASE + 'ROGAS-SLA_latest.xml'),
-    'Metlika': (BASE + 'METLIKA_latest.xml'),
-    'Črnomelj': (BASE + 'CRNOMELJ_latest.xml'),
-    'Metlika': (BASE + 'METLIKA_latest.xml'),
-    'Koper': (BASE + 'KOPER_KAPET-IJA_latest.xml'),
-    'Celje': (BASE + 'CELJE_MEDLOG_latest.xml'),
-    'Kočevje': (BASE + 'KOCEVJE_latest.xml'),
-    'Maribor': (BASE + 'MARIBOR_VRBAN-PLA_latest.xml'),
-    'Podčetrtek': (BASE + 'PODCE-TEK_ATOMS-TOP_latest.xml'),
-    'Bilje pri Novi Gorici': (BASE + 'NOVA-GOR_BILJE_latest.xml'),
-    'Marinča vas': (BASE + 'MARIN-VAS_latest.xml'),
-    'Nanos (1242 m)': (BASE + 'NANOS_latest.xml'),
-    'Rogla (1494 m)': (BASE + 'ROGLA_latest.xml'),
-    'Kredarica (2514 m)': (BASE + 'KREDA-ICA_latest.xml'),
-}
-
-# seznam s potjo do podatka (xpath) v XML-datoteki in imenom kategorije
-# prenos v ločeno datoteko?
-KATEGORIJE = [
-    ['/data/metData/nn_icon-wwsyn_icon', 'Opis vremena'],
-    ['/data/metData/t', 'Temperatura', '°C'],
-    ['/data/metData/rhavg', 'Relativna vlažnost', '%'],
-    ['/data/metData/rr_val', 'Vsota padavin v časovnem intervalu', 'mm'],
-    ['/data/metData/mslavg', 'Tlak', 'hPa'],
-    ['/data/metData/ddavg_longText', 'Smer vetra'],
-    ['/data/metData/ffavg_val', 'Hitrost vetra', 'm/s'],
-    ['/data/metData/sunrise', 'Sončni vzhod'],
-    ['/data/metData/sunset', 'Sončni zahod'],
-    ['/data/metData/gSunRadavg', 'Povprečno sončno obsevanje', 'W/m2'],
-]
-
-# prevod oznak za vremenske razmere
-# prenos v ločeno datoteko?
-OPIS = {
-    'clear': 'jasno',
-    'mostClear': 'pretežno jasno',
-    'partCloudy': 'delno oblačno',
-    'modCloudy': 'zmerno oblačno',
-    'prevCloudy': 'pretežno oblačno',
-    'overcast': 'oblačno',
-    'FG': 'megla',
-    'RA': 'rosenje',
-    'RASN': 'dež s snegom',
-    'SN': 'sneženje',
-    'TS': 'nevihte',
-    'TSGR': 'nevihta s točo',
-    'lightRA': 'manjše padavine',
-    'modRA': 'zmerne padavine',
-    'overcast_lightRA': 'oblačno z manjšimi padavinami',
-    'overcast_modRA': 'oblačno z zmernimi padavinami',
-    'overcast_heavyRA': 'oblačno z močnimi padavinami',
-    'prevCloudy_lightRA': 'pretežno oblačno z manjšimi padavinami',
-    'overcast_lightSN': 'oblačno z manjšim sneženjem'
-}
-
-ŠIFRE_ONESNAŽENOSTI = {
-    "Ljubljana": "E21",
-    "Maribor": "E22",
-    "Celje": "E23",
-    "Nova Gorica": "E25",
-    "Koper": "E30",
-}
-
-
-def pridobi_spletno_stran(naslov=KRAJI["Ljubljana"],
-                          kraj="Ljubljana"):
-    r = requests.get(naslov)
-    '''
-    [38:] zaradi konflikta med deklaracijo kodiranja in znaki
-
-    ValueError: Unicode strings with encoding declaration are not supported.\
-    Please use bytes input or XML fragments without declaration.
-    '''
-    stran = etree.fromstring(r.text[38:])
-
-    # zdaj = datetime.now()
-    # # TODO absolute path
-    # datoteka = "data/vremenko_%(k)s_%(d)s.xml"\
-    #             % { "k": kraj, "d": zdaj.strftime('%d-%m-%Y_%H-%M')}
-    # with open(datoteka, "w") as f:
-    #     f.write(r.text[38:])
-
-    return stran
-
-
-def onesnaženost_zraka(kraj='Ljubljana',
-                       naslov=ONESNAŽENOST,
-                       seznam=ŠIFRE_ONESNAŽENOSTI):
-    šifra = seznam[kraj]
-    r = requests.get(naslov)
-    stran = etree.fromstring(bytes(r.text, encoding='utf8'))
-    try:
-        pm10 = stran.xpath(f'/arsopodatki/postaja[@sifra="{šifra}"]/pm10')[0].text
-        # pm10 = stran.xpath(f'/arsopodatki/postaja[@sifra="M16"]/pm10')[0].text
-    except IndexError:
-        pm10 = None
-    try:
-        o3 = stran.xpath(f'/arsopodatki/postaja["{šifra}"]/o3')[0].text
-    except IndexError:
-        o3 = None
-    return (pm10, o3)
-
-
-def izpis(root,
-          kraj,
-          opis=OPIS):
-    print(f'Podatki za mesto {kraj}.')
-    for i in KATEGORIJE:
-        try:
-            p = root.xpath(i[0])[0].text
-            # opis vremena
-            if i == KATEGORIJE[0]:
-                print(f'\t{i[1]}: {opis[p]}.')
-            # z enoto
-            elif len(i) == 3:
-                print(f'\t{i[1]}: {p} {i[2]}.')
-            # brez enote
-            else:
-                print(f'\t{i[1]}: {p}.')
-        except TypeError:
-            print(f'\t{i[1]}: Ni podatka. (TypeError)')
-        except KeyError:
-            print(f'\t{i[1]}: Ni podatka. (KeyError)')
-        except IndexError:
-            print('Podatkov za ta kraj trenutno žal ni.')
-            break
-    if kraj in ('Ljubljana', 'Maribor', 'Celje', 'Koper', 'Nova Gorica'):
-        o = onesnaženost_zraka(kraj)
-        if o[0]:
-            print(f'\tPM10: {o[0]} µg/m³ (mejna vrednost je 50)')
-        else:
-            print('\tNi podatka.')
-        if o[1]:
-            print(f'\tO3: {o[1]} µg/m³ (mejna vrednost je 180)')
-        else:
-            print('\tNi podatka.')
-
+from nastavitve import *
+from pamet import *
 
 
 def izbira_kraja(KRAJI):
@@ -183,6 +34,9 @@ def izbira_kraja(KRAJI):
 
 
 def argumenti():
+    '''
+    Razbere ukaz iz ukazne vrstice.
+    '''
     parser = argparse.ArgumentParser(
         description="Preprost program, ki izpiše trenutne vremenske razmere.\
                     Podatke pridobi z ARSO-ve spletne strani.",
@@ -211,8 +65,8 @@ def main():
     else:
         naslov = 'Ljubljana'
     try:
-        root = pridobi_spletno_stran(KRAJI[naslov])
-        izpis(root, naslov)
+        stran = pridobi_spletno_stran(KRAJI[naslov])
+        izpis(stran, naslov)
     except requests.exceptions.ConnectionError:
         print("\nPodatki so trenutno nedosegljivi.\n")
 
