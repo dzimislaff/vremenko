@@ -49,9 +49,9 @@ VETER = {
 VREME = {
     'Opis vremena': ('/data/metData/nn_icon-wwsyn_icon'),
     'Temperatura': ('/data/metData/t', '°C'),
-    'Relativna vlažnost': ('/data/metData/rhavg', '%'),
+    'Relativna vlaga': ('/data/metData/rhavg', '%'),
     'Tlak': ('/data/metData/mslavg', 'hPa'),
-    'Vsota padavin v časovnem intervalu': ('/data/metData/rr_val', 'mm')
+    'Vsota padavin': ('/data/metData/rr_val', 'mm')
 }
 
 
