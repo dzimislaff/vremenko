@@ -15,10 +15,12 @@ class Vreme(NamedTuple):
     temperatura: str  # zaenkrat
     relativna_vlaga: int
     tlak: str  # zaenkrat
+    sončno_obsevanje: str  # zaenkrat
     vsota_padavin: str  # zaenkrat
     temperatura_enota: str = '°C'
     relativna_vlaga_enota: str = '%'
     tlak_enota: str = 'hPa'
+    sončno_obsevanje_enota: str = 'W/m2'
     vsota_padavin_enota: str = 'mm'
 
 
@@ -30,6 +32,14 @@ class Veter(NamedTuple):
     sunki_vetra_enota: str = 'm/s'
 
 
+class ZrakEnote(NamedTuple):
+    pm10_enota: str = 'µg/m³'
+    so2_enota: str = 'µg/m³'
+    co_enota: str = 'mg/m³'
+    o3_enota: str = 'µg/m³'
+    no2_enota: str = 'µg/m³'
+
+
 class Dan(NamedTuple):
     datum: str
     vzhod: str
@@ -38,14 +48,27 @@ class Dan(NamedTuple):
     zaporedni_v_letu: str
 
 
-def pridobi_spletno_stran(naslov=n.KRAJI["Ljubljana"],
-                          kraj="Ljubljana"):
-    r = requests.get(naslov)
-    stran = etree.fromstring(bytes(r.text, encoding='utf8'))
-    return stran
+def pridobi_spletno_stran(naslov):
+    try:
+        return requests.get(naslov)
+    except requests.exceptions.ConnectionError:
+        return None
 
 
-def vreme(stran):
+def pridobi_vremenske_podatke(naslov=n.KRAJI["Ljubljana"],
+                              kraj="Ljubljana"):
+    r = pridobi_spletno_stran(naslov)
+    if r:
+        stran = etree.fromstring(bytes(r.text, encoding='utf8'))
+        return stran
+    else:
+        return None
+
+
+def vreme_podatki(stran):
+    if stran is None:
+        return None
+
     try:
         opis_vremena = n.OPIS[stran.xpath(n.VREME["Opis vremena"])[0].text]
     except KeyError:
@@ -75,6 +98,17 @@ def vreme(stran):
         tlak_enota = n.VREME["Tlak"][1]
 
     try:
+        sončno_obsevanje = stran.xpath(
+            n.VREME['Povprečno sončno obsevanje'][0])[0].text
+    except KeyError:
+        sončno_obsevanje = None
+    else:
+        if sončno_obsevanje == '0':
+            sončno_obsevanje = None
+        else:
+            sončno_obsevanje_enota = n.VREME['Povprečno sončno obsevanje'][1]
+
+    try:
         # TODO decimalno število
         vsota_padavin = stran.xpath(n.VREME["Vsota padavin"][0])[0].text
     except KeyError:
@@ -86,34 +120,37 @@ def vreme(stran):
                  temperatura=temperatura,
                  relativna_vlaga=relativna_vlaga,
                  tlak=tlak,
+                 sončno_obsevanje=sončno_obsevanje,
                  vsota_padavin=vsota_padavin,
                  temperatura_enota=temperatura_enota,
                  relativna_vlaga_enota=relativna_vlaga_enota,
                  tlak_enota=tlak_enota,
+                 sončno_obsevanje_enota=sončno_obsevanje_enota,
                  vsota_padavin_enota=vsota_padavin_enota,
                  )
 
 
-def izpis_vremena(vreme, kraj='Ljubljana'):
-    if not any(vreme):
+def vreme_izpis(vreme, kraj='Ljubljana'):
+    if vreme is None:
+        return "Podatkov o vremenu trenutno ni."
+    elif not any(vreme):
         return "Podatkov o vremenu trenutno ni."
 
     izpis = f'Podatki za mesto {kraj}.\n'
-    # opis vremena
+
     if vreme.opis_vremena:
         izpis += f'{vreme.opis_vremena}. '
 
-    # temperatura in vlažnost
-    izpis += (f'Temperatura zraka je '
-              f'{vreme.temperatura.replace(".", ",")} '
-              f'{vreme.temperatura_enota}')
+    if vreme.temperatura:
+        izpis += (f'Temperatura zraka je '
+                  f'{vreme.temperatura.replace(".", ",")} '
+                  f'{vreme.temperatura_enota}')
 
-    # vlažnost
-    izpis += (f', relativna vlažnost znaša '
-              f'{vreme.relativna_vlaga} '
-              f'{vreme.relativna_vlaga_enota}')
+    if vreme.relativna_vlaga:
+        izpis += (f', relativna vlažnost znaša '
+                  f'{vreme.relativna_vlaga} '
+                  f'{vreme.relativna_vlaga_enota}')
 
-    # tlak
     if vreme.tlak:
         izpis += (f', zračni tlak je '
                   f'{vreme.tlak.replace(".", ",")} '
@@ -121,7 +158,10 @@ def izpis_vremena(vreme, kraj='Ljubljana'):
     else:
         izpis += '. '
 
-    # padavine
+    if vreme.sončno_obsevanje:
+        izpis += (f'Sončno obsevanje znaša {vreme.sončno_obsevanje} '
+                  f'{vreme.sončno_obsevanje_enota}. ')
+
     if vreme.vsota_padavin != '0':
         izpis += (f'Zapadlo je '
                   f'{vreme.vsota_padavin} '
@@ -129,11 +169,15 @@ def izpis_vremena(vreme, kraj='Ljubljana'):
     return izpis
 
 
-def veter(stran):
+def veter_podatki(stran):
+    if stran is None:
+        return None
+
     try:
         smer_vetra = stran.xpath(n.VETER["Smer vetra"])[0].text
     except KeyError:
         smer_vetra = None
+
     try:
         hitrost_vetra = stran.xpath(n.VETER["Hitrost vetra"][0])[
             0].text.replace(".", ",")
@@ -158,23 +202,29 @@ def veter(stran):
                  )
 
 
-def izpis_vetra(veter):
-    if not any(veter):
-        return
+def veter_izpis(veter):
+    if veter is None:
+        return None
+
+    elif not any(veter):
+        return None
 
     izpis = (f'Piha {veter.smer_vetra} '
              f's hitrostjo '
              f'{veter.hitrost_vetra} {veter.hitrost_vetra_enota} '
-             f'in sunki do {veter.sunki_vetra} {veter.sunki_vetra_enota}.')
+             f'in sunki do {veter.sunki_vetra} {veter.sunki_vetra_enota}. ')
     return izpis
 
 
-def onesnaženost_zraka(kraj='Ljubljana',
-                       naslov=n.ONESNAŽENOST,
-                       šifre=n.ŠIFRE_ONESNAŽENOSTI,
-                       kategorije=n.KATEGORIJE_ONESNAŽENOSTI):
+def onesnaženost_podatki(stran,
+                         kraj='Ljubljana',
+                         naslov=n.ZRAK,
+                         šifre=n.ZRAK_ŠIFRE,
+                         kategorije=n.ZRAK_KATEGORIJE):
+    if stran is None:
+        return None
+
     šifra = šifre[kraj]
-    stran = pridobi_spletno_stran(naslov)
     rezultat = {}
     čist_zrak = True
     for i in kategorije:
@@ -190,8 +240,11 @@ def onesnaženost_zraka(kraj='Ljubljana',
     return (rezultat, čist_zrak)
 
 
-def izpis_onesnaženosti(rezultat,
-                        enote=n.KATEGORIJE_ONESNAŽENOSTI):
+def onesnaženost_izpis(rezultat,
+                       enote=n.ZRAK_KATEGORIJE):
+    if rezultat is None:
+        return "Podatkov o kakovosti zraka trenutno ni."
+
     izpis = ''
     if not rezultat[1]:
         izpis += 'POZOR! Zrak je onesnažen.\n'
@@ -204,7 +257,7 @@ def izpis_onesnaženosti(rezultat,
     return izpis.rstrip()
 
 
-def popravi_datum_uro(niz):
+def dan_uredi_podatke(niz):
     x = niz.split(' ')[:-1]
     ura = x[1].replace(':', '.')
     datum = x[0].split('.')
@@ -221,19 +274,19 @@ def popravi_datum_uro(niz):
     return ('. '.join(datum), ura, izr_ura)
 
 
-def dolžina_dneva(stran):
+def dan_podatki(stran):
     # <class 'tuple'>: ('1. 4. 2020',
     #                   '6.41',
     #                   datetime.datetime(2020, 4, 1, 6, 41))
-    vzhod = popravi_datum_uro(stran.xpath('/data/metData/sunrise')[0].text)
-    zahod = popravi_datum_uro(stran.xpath('/data/metData/sunset')[0].text)
+    vzhod = dan_uredi_podatke(stran.xpath('/data/metData/sunrise')[0].text)
+    zahod = dan_uredi_podatke(stran.xpath('/data/metData/sunset')[0].text)
 
     # <class 'list'>: ['2020', '04', '01']
-    d = stran.xpath(
+    x = stran.xpath(
         '/data/metData/sunrise')[0].text.split(' ')[0].split('.')[::-1]
-    datum = datetime.date(int(d[0]), int(d[1]), int(d[2]))
-    zaporedni_v_letu = datum - datetime.date(int(d[0]), 1, 1)
-    datum = '. '.join(i.lstrip('0') for i in d[::-1])
+    datum = datetime.date(int(x[0]), int(x[1]), int(x[2]))
+    zaporedni_v_letu = datum - datetime.date(int(x[0]), 1, 1)
+    datum = '. '.join(i.lstrip('0') for i in x[::-1])
     dolžina_dneva = zahod[2] - vzhod[2]
     dolž_dneva_ure = dolžina_dneva.total_seconds() // 3660
     dolž_dneva_min = (dolžina_dneva.total_seconds() % 3600) // 60
@@ -245,27 +298,55 @@ def dolžina_dneva(stran):
                zaporedni_v_letu=zaporedni_v_letu.days,)
 
 
-def izpis_dolžine_dneva(dan):
+def dan_izpis(dan):
     izpis = (f'Sončni vzhod je ob {dan.vzhod}, zahod ob {dan.zahod}, dan '
              f'traja {dan.dolžina_dneva}. Danes je {dan.datum}, tj. '
              f'{dan.zaporedni_v_letu}. dan v letu.')
     return izpis
 
 
-def izpis(stran,
-          kraj):
-    izpis_vreme = izpis_vremena(vreme(stran), kraj)
-    if izpis_vreme:
-        print(izpis_vreme)
+def vreme_ni_podatkov():
+    return 'Podatkov o vremenu trenutno ni.'
 
-    izpis_veter = izpis_vetra(veter(stran))
-    if izpis_veter:
-        print(izpis_veter)
 
-    izpis_dolžina_dneva = izpis_dolžine_dneva(dolžina_dneva(stran))
-    if izpis_dolžina_dneva:
-        print(izpis_dolžina_dneva)
+def ni_povezave():
+    return 'Podatki so trenutno nedosegljivi.'
 
-    if kraj in ('Ljubljana', 'Maribor', 'Celje', 'Murska Sobota', 'Koper'
-                'Nova Gorica', 'Trbovlje', 'Zagorje'):
-        print(izpis_onesnaženosti(onesnaženost_zraka(kraj)))
+
+def vremenko_izpis(kraj='Ljubljana'):
+    stran_vreme = pridobi_vremenske_podatke(n.KRAJI[kraj], kraj)
+    stran_onesnaženost = pridobi_vremenske_podatke(n.ZRAK)
+
+    if (stran_vreme is None) and (stran_onesnaženost is None):
+        return ni_povezave()
+
+    elif stran_vreme is None:
+        return vreme_ni_podatkov(kraj)
+
+    else:
+        izpis = ''
+        izpis_vreme = vreme_izpis(vreme_podatki(stran_vreme), kraj)
+        if izpis_vreme:
+            izpis += izpis_vreme
+
+        izpis_veter = veter_izpis(veter_podatki(stran_vreme))
+        if izpis_veter:
+            izpis += izpis_veter
+
+        izpis_dolžina_dneva = dan_izpis(dan_podatki(stran_vreme))
+        if izpis_dolžina_dneva:
+            izpis += izpis_dolžina_dneva
+
+        if kraj in ('Ljubljana', 'Maribor', 'Celje', 'Murska Sobota', 'Koper'
+                    'Nova Gorica', 'Trbovlje', 'Zagorje'):
+            izpis += '\n' + onesnaženost_izpis(
+                onesnaženost_podatki(stran_onesnaženost, kraj))
+    return izpis
+
+
+def main():
+    print(vremenko_izpis())
+
+
+if __name__ == '__main__':
+    main()
