@@ -64,7 +64,7 @@ def main():
         naslov = 'Rogaška Slatina'
     else:
         naslov = 'Ljubljana'
-    print(izpis(naslov))
+    print(vremenko_izpis(naslov))
 
 
 if __name__ == '__main__':
