@@ -32,14 +32,6 @@ class Veter(NamedTuple):
     sunki_vetra_enota: str = 'm/s'
 
 
-class ZrakEnote(NamedTuple):
-    pm10_enota: str = 'µg/m³'
-    so2_enota: str = 'µg/m³'
-    co_enota: str = 'mg/m³'
-    o3_enota: str = 'µg/m³'
-    no2_enota: str = 'µg/m³'
-
-
 class Dan(NamedTuple):
     datum: str
     vzhod: str
