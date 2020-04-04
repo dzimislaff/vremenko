@@ -70,6 +70,7 @@ def vreme_podatki(stran):
         temperatura = stran.xpath(n.VREME["Temperatura"][0])[0].text
     except KeyError:
         temperatura = None
+        temperatura_enota = None
     else:
         temperatura_enota = n.VREME["Temperatura"][1]
 
@@ -78,6 +79,7 @@ def vreme_podatki(stran):
             n.VREME["Relativna vlaga"][0])[0].text)
     except KeyError:
         relativna_vlaga = None
+        relativna_vlaga_enota = None
     else:
         relativna_vlaga_enota = n.VREME["Relativna vlaga"][1]
 
@@ -86,6 +88,7 @@ def vreme_podatki(stran):
         tlak = stran.xpath(n.VREME["Tlak"][0])[0].text
     except KeyError:
         tlak = None
+        tlak_enota = None
     else:
         tlak_enota = n.VREME["Tlak"][1]
 
@@ -94,9 +97,11 @@ def vreme_podatki(stran):
             n.VREME['Povprečno sončno obsevanje'][0])[0].text
     except KeyError:
         sončno_obsevanje = None
+        sončno_obsevanje_enota = None
     else:
         if sončno_obsevanje == '0':
             sončno_obsevanje = None
+            sončno_obsevanje_enota = None
         else:
             sončno_obsevanje_enota = n.VREME['Povprečno sončno obsevanje'][1]
 
@@ -105,6 +110,7 @@ def vreme_podatki(stran):
         vsota_padavin = stran.xpath(n.VREME["Vsota padavin"][0])[0].text
     except KeyError:
         vsota_padavin = None
+        vsota_padavin_enota = None
     else:
         vsota_padavin_enota = n.VREME["Vsota padavin"][1]
 
@@ -175,6 +181,7 @@ def veter_podatki(stran):
             0].text.replace(".", ",")
     except KeyError:
         hitrost_vetra = None
+        hitrost_vetra_enota = None
     else:
         hitrost_vetra_enota = n.VETER["Hitrost vetra"][1]
 
@@ -183,6 +190,7 @@ def veter_podatki(stran):
             0].text.replace(".", ",")
     except KeyError:
         sunki_vetra = None
+        sunki_vetra_enota = None
     else:
         sunki_vetra_enota = n.VETER["Sunki vetra"][1]
 
@@ -210,7 +218,6 @@ def veter_izpis(veter):
 
 def onesnaženost_podatki(stran,
                          kraj='Ljubljana',
-                         naslov=n.ZRAK,
                          šifre=n.ZRAK_ŠIFRE,
                          kategorije=n.ZRAK_KATEGORIJE):
     if stran is None:
@@ -329,7 +336,7 @@ def vremenko_izpis(kraj='Ljubljana'):
         if izpis_dolžina_dneva:
             izpis += izpis_dolžina_dneva
 
-        if kraj in ('Ljubljana', 'Maribor', 'Celje', 'Murska Sobota', 'Koper'
+        if kraj in ('Ljubljana', 'Maribor', 'Celje', 'Murska Sobota', 'Koper',
                     'Nova Gorica', 'Trbovlje', 'Zagorje'):
             izpis += '\n' + onesnaženost_izpis(
                 onesnaženost_podatki(stran_onesnaženost, kraj))

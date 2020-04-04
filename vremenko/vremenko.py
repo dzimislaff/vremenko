@@ -3,7 +3,7 @@
 
 import argparse
 import nastavitve as n
-from pamet import *
+import pamet
 
 
 def izbira_kraja(KRAJI):
@@ -64,7 +64,7 @@ def main():
         naslov = 'Rogaška Slatina'
     else:
         naslov = 'Ljubljana'
-    print(vremenko_izpis(naslov))
+    print(pamet.vremenko_izpis(naslov))
 
 
 if __name__ == '__main__':
