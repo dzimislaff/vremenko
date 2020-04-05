@@ -7,13 +7,12 @@ ZRAK = 'http://www.arso.gov.si/xml/zrak/ones_zrak_urni_podatki_zadnji.xml'
 
 
 # slovar s kombinacijo povezav: osnova + končnica
-KRAJI = {
+KRAJI_URL = {
     'Ljubljana': (BAZA + 'LJUBL-ANA_BEZIGRAD_latest.xml'),
     'Novo mesto': (BAZA + 'NOVO-MES_latest.xml'),
     'Rogaška Slatina': (BAZA + 'ROGAS-SLA_latest.xml'),
     'Metlika': (BAZA + 'METLIKA_latest.xml'),
     'Črnomelj': (BAZA + 'CRNOMELJ_latest.xml'),
-    'Metlika': (BAZA + 'METLIKA_latest.xml'),
     'Koper': (BAZA + 'KOPER_KAPET-IJA_latest.xml'),
     'Celje': (BAZA + 'CELJE_MEDLOG_latest.xml'),
     'Kočevje': (BAZA + 'KOCEVJE_latest.xml'),
@@ -26,6 +25,23 @@ KRAJI = {
     'Kredarica (2514 m)': (BAZA + 'KREDA-ICA_latest.xml'),
 }
 
+KRAJI_SKLONI = {
+    'Ljubljana': 'Ljubljano',
+    'Novo mesto': 'Novo mesto',
+    'Rogaška Slatina': 'Rogaško Slatino',
+    'Metlika': 'Metliko',
+    'Črnomelj': 'Črnomelj',
+    'Koper': 'Koper',
+    'Celje': 'Celje',
+    'Kočevje': 'Kočevje',
+    'Maribor': 'Maribor',
+    'Podčetrtek': 'Podčetrtek',
+    'Bilje pir Novi Gorici': '',
+    'Marinča vas': 'Marinčo vas',
+    'Nanos (1242 m)': 'Nanos (1242 m)',
+    'Rogla (1494 m)': 'Roglo (1494 m)',
+    'Kredarica (2514 m)': 'Kredarico',
+}
 
 # slovar z imenom kategorije in xpathom do podatka v XML-datoteki in enoto
 VETER = {
