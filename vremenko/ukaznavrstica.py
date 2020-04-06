@@ -2,8 +2,8 @@
 # -*- coding: 'UTF-8' -*-
 
 import argparse
-import nastavitve as n
-import vremenko
+import vremenko.nastavitve as n
+import vremenko.vreme
 
 
 def izbira_kraja(KRAJI):
@@ -64,7 +64,7 @@ def main():
         naslov = 'Rogaška Slatina'
     else:
         naslov = 'Ljubljana'
-    print(vremenko.vremenko_izpis(naslov))
+    print(vremenko.vreme.vremenko_izpis(naslov))
 
 
 if __name__ == '__main__':

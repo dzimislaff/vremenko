@@ -3,8 +3,8 @@
 
 from typing import NamedTuple
 import datetime
-import nastavitve as n
-import poštar
+import vremenko.nastavitve as n
+import vremenko.poštar
 
 # TODO komentarji, decimalna števila
 
@@ -269,7 +269,7 @@ def dan_podatki(stran):
     zaporedni_v_letu = datum - datetime.date(int(x[0]), 1, 1)
     datum = '. '.join(i.lstrip('0') for i in x[::-1])
     dolžina_dneva = zahod[2] - vzhod[2]
-    dolž_dneva_ure = str(int(dolžina_dneva.total_seconds() // 3660))
+    dolž_dneva_ure = str(int(dolžina_dneva.total_seconds() // 3600))
     dolž_dneva_min = str(int(dolžina_dneva.total_seconds() % 3600) // 60)
     if len(dolž_dneva_min) == 1:
         dolž_dneva_min = f'0{dolž_dneva_min}'
@@ -297,8 +297,9 @@ def ni_povezave():
 
 
 def vremenko_izpis(kraj='Ljubljana'):
-    stran_vreme = poštar.pridobi_vremenske_podatke(n.KRAJI_URL[kraj], kraj)
-    stran_onesnaženost = poštar.pridobi_vremenske_podatke(n.ZRAK)
+    stran_vreme = vremenko.poštar.pridobi_vremenske_podatke(
+        n.KRAJI_URL[kraj], kraj)
+    stran_onesnaženost = vremenko.poštar.pridobi_vremenske_podatke(n.ZRAK)
 
     if (stran_vreme is None) and (stran_onesnaženost is None):
         return ni_povezave()
