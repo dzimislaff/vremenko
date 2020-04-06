@@ -20,6 +20,9 @@ KRAJI_URL = {
     'Podčetrtek': (BAZA + 'PODCE-TEK_ATOMS-TOP_latest.xml'),
     'Bilje pri Novi Gorici': (BAZA + 'NOVA-GOR_BILJE_latest.xml'),
     'Marinča vas': (BAZA + 'MARIN-VAS_latest.xml'),
+    'Murska Sobota': (BAZA + 'MURSK-SOB_latest.xml'),
+    'Trbovlje': (BAZA + 'TRBOVLJE_latest.xml'),
+    'Krško': (BAZA + 'KRSKO_NEK_latest.xml'),
     'Nanos (1242 m)': (BAZA + 'NANOS_latest.xml'),
     'Rogla (1494 m)': (BAZA + 'ROGLA_latest.xml'),
     'Kredarica (2514 m)': (BAZA + 'KREDA-ICA_latest.xml'),
@@ -36,8 +39,11 @@ KRAJI_SKLONI = {
     'Kočevje': 'Kočevje',
     'Maribor': 'Maribor',
     'Podčetrtek': 'Podčetrtek',
-    'Bilje pir Novi Gorici': '',
+    'Bilje pri Novi Gorici': 'Bilje pri Novi Gorici',
     'Marinča vas': 'Marinčo vas',
+    'Murska Sobota': 'Mursko Soboto',
+    'Trbovlje': 'Trbovlje',
+    'Krško': 'Krško',
     'Nanos (1242 m)': 'Nanos (1242 m)',
     'Rogla (1494 m)': 'Roglo (1494 m)',
     'Kredarica (2514 m)': 'Kredarico',
@@ -88,11 +94,14 @@ OPIS = {
 
 # slovar z imenom kraja in šifro
 ZRAK_ŠIFRE = {
-    "Ljubljana": "E21",
-    "Maribor": "E22",
-    "Celje": "E23",
-    "Nova Gorica": "E25",
-    "Koper": "E30",
+    'Ljubljana': 'E21',
+    'Maribor': 'E22',
+    'Celje': 'E23',
+    'Nova Gorica': 'E25',
+    'Koper': 'E30',
+    'Murska Sobota': 'E24',
+    'Murska Sobota': 'E24',
+    'Trbovlje': 'E26',
 }
 
 

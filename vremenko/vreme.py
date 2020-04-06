@@ -282,9 +282,9 @@ def dan_podatki(stran):
 
 
 def dan_izpis(dan):
-    izpis = (f'Sončni vzhod je ob {dan.vzhod}, zahod ob {dan.zahod}, dan '
-             f'traja {dan.dolžina_dneva}. Danes je {dan.datum}, tj. '
-             f'{dan.zaporedni_v_letu}. dan v letu.')
+    izpis = (f'Danes je {dan.datum}, tj. {dan.zaporedni_v_letu}. dan v letu. '
+             f'Sončni vzhod je ob {dan.vzhod}, zahod ob {dan.zahod}, '
+             f'dan traja {dan.dolžina_dneva}.')
     return izpis
 
 
