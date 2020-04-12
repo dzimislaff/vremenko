@@ -308,7 +308,7 @@ def onesnaženost_podatki(stran,
             pass
         else:
             if rezultat[i]:
-                if int(float(rezultat[i])) >= int(kategorije[i][1]):
+                if int(float(rezultat[i].lstrip('<'))) >= int(kategorije[i][1]):
                     čist_zrak = False
     return (rezultat, čist_zrak)
 
