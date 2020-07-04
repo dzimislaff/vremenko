@@ -6,8 +6,6 @@ import datetime
 import vremenko.nastavitve as n
 import vremenko.poštar
 
-# TODO komentarji, decimalna števila
-
 
 class Vreme(NamedTuple):
     opis_vremena: str
@@ -46,6 +44,11 @@ class Čas(NamedTuple):
     dtm: datetime.datetime
 
 
+def preveri_dostopnost_podatkov(stran):
+    if stran is None:
+        return None
+
+
 def vreme_podatki(stran  # lxml.etree._Element
                   ) -> Vreme:
     """
@@ -68,7 +71,7 @@ def vreme_podatki(stran  # lxml.etree._Element
     vsota_padavin, temperatura_enota, relativna_vlaga_enota, tlak_enota,
     sončno_obsevanje_enota, vsota_padavin_enota
     """
-    if stran is None:
+    if preveri_dostopnost_podatkov(stran):
         return None
 
     try:
@@ -100,7 +103,6 @@ def vreme_podatki(stran  # lxml.etree._Element
         relativna_vlaga_enota = n.VREME["Relativna vlaga"][1]
 
     try:
-        # TODO decimalno število
         tlak = stran.xpath(n.VREME["Tlak"][0])[0].text
     except KeyError:
         tlak = None
@@ -122,7 +124,6 @@ def vreme_podatki(stran  # lxml.etree._Element
             sončno_obsevanje_enota = n.VREME["Povprečno sončno obsevanje"][1]
 
     try:
-        # TODO decimalno število
         vsota_padavin = stran.xpath(n.VREME["Vsota padavin"][0])[0].text
     except KeyError:
         vsota_padavin = None
@@ -169,9 +170,9 @@ def vreme_izpis(vreme: Vreme,
     pretvori podatke iz namedtupla v besedilo
     """
     if vreme is None:
-        return "Podatkov o vremenu trenutno ni."
+        return "Podatkov o vremenu trenutno ni. "
     elif not any(vreme):
-        return "Podatkov o vremenu trenutno ni."
+        return "Podatkov o vremenu trenutno ni. "
 
     if vreme.ura:
         izpis = f"Podatki za {n.KRAJI_SKLONI[kraj]} ob {vreme.ura}.\n"
@@ -222,7 +223,7 @@ def veter_podatki(stran  # lxml.etree._Element
     smer_vetra, hitrost_vetra, sunki_vetra, hitrost_vetra_enota,
     sunki_vetra_enota
     """
-    if stran is None:
+    if not preveri_dostopnost_podatkov(stran):
         return None
 
     try:
