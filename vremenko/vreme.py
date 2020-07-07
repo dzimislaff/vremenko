@@ -47,6 +47,10 @@ class Čas(NamedTuple):
 def preveri_dostopnost_podatkov(stran):
     if stran is None:
         return None
+    elif len(stran.xpath('/data/metData')) == 0:
+        return None
+    else:
+        return True
 
 
 def vreme_podatki(stran  # lxml.etree._Element
@@ -71,7 +75,7 @@ def vreme_podatki(stran  # lxml.etree._Element
     vsota_padavin, temperatura_enota, relativna_vlaga_enota, tlak_enota,
     sončno_obsevanje_enota, vsota_padavin_enota
     """
-    if preveri_dostopnost_podatkov(stran):
+    if not preveri_dostopnost_podatkov(stran):
         return None
 
     try:
@@ -385,6 +389,8 @@ def dan_podatki(stran  # lxml.etree._Element
     izlušči podatke iz zapisa .xml z ARSO-ve spletne strani v namedtuple:
     datum, vzhod, zahod, dolžina_dneva, zaporedni_v_letu
     """
+    if not preveri_dostopnost_podatkov(stran):
+        return None
 
     vzhod = čas_uredi(stran.xpath("/data/metData/sunrise")[0].text)
     zahod = čas_uredi(stran.xpath("/data/metData/sunset")[0].text)
@@ -420,6 +426,9 @@ def dan_izpis(dan: Dan
                        je ob 6.32, zahod ob 19.38, dan traja 13.06."
     zahteve: typing.NamedTuple
     """
+    if dan is None:
+        return None
+
     izpis = (f"Danes je {dan.datum}, tj. {dan.zaporedni_v_letu}. dan v letu. "
              f"Sončni vzhod je ob {dan.vzhod}, zahod ob {dan.zahod}, "
              f"dan traja {dan.dolžina_dneva}.")
