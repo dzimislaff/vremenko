@@ -360,6 +360,11 @@ def čas_uredi(niz: str
     pretvori zapis časa (datum in ura) z ARSO-ve spletne strani v namedtuple:
     datum, ura, zapis v obliki datetime.datetime
     """
+    if type(niz) != str:
+        return Čas(None, None, None)
+    elif not (20 <= len(niz) <= 21):
+        return Čas(None, None, None)
+
     x = niz.split(" ")[:-1]
     ura = x[1].replace(":", ".")
     datum = x[0].split(".")
@@ -395,6 +400,9 @@ def dan_podatki(stran  # lxml.etree._Element
     vzhod = čas_uredi(stran.xpath("/data/metData/sunrise")[0].text)
     zahod = čas_uredi(stran.xpath("/data/metData/sunset")[0].text)
 
+    if vzhod and zahod == (None, None, None):
+        return None
+
     # <class "list">: ["2020", "04", "01"]
     x = stran.xpath(
         "/data/metData/sunrise")[0].text.split(" ")[0].split(".")[::-1]
@@ -427,6 +435,8 @@ def dan_izpis(dan: Dan
     zahteve: typing.NamedTuple
     """
     if dan is None:
+        return None
+    elif dan == (None, None, None):
         return None
 
     izpis = (f"Danes je {dan.datum}, tj. {dan.zaporedni_v_letu}. dan v letu. "
