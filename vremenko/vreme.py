@@ -56,24 +56,7 @@ def preveri_dostopnost_podatkov(stran):
 def vreme_podatki(stran  # lxml.etree._Element
                   ) -> Vreme:
     """
-    vhod: lxml.etree._Element
-    izhod: namedtuple, npr.: Vreme(opis_vremena="Jasno je",
-                                   ura="18.30",
-                                   temperatura="18.3",
-                                   relativna_vlaga=21,
-                                   tlak="1026.3",
-                                   sončno_obsevanje="191",
-                                   vsota_padavin="0",
-                                   temperatura_enota="°C",
-                                   relativna_vlaga_enota="%",
-                                   tlak_enota="hPa",
-                                   sončno_obsevanje_enota="W/m2",
-                                   vsota_padavin_enota="mm")
     zahteve: typing.NamedTuple, lxml.etree
-    izlušči podatke iz zapisa .xml z ARSO-ve spletne strani v namedtuple:
-    opis_vremena, ura, temperatura, relativna_vlaga, tlak, sončno_obsevanje,
-    vsota_padavin, temperatura_enota, relativna_vlaga_enota, tlak_enota,
-    sončno_obsevanje_enota, vsota_padavin_enota
     """
     if not preveri_dostopnost_podatkov(stran):
         return None
@@ -154,24 +137,7 @@ def vreme_izpis(vreme: Vreme,
                 kraj: str = "Ljubljana"
                 ) -> str:
     """
-    vhod: namedtuple, npr.: Vreme(opis_vremena="Jasno je",
-                                   ura="18.30",
-                                   temperatura="18.3",
-                                   relativna_vlaga=21,
-                                   tlak="1026.3",
-                                   sončno_obsevanje="191",
-                                   vsota_padavin="0",
-                                   temperatura_enota="°C",
-                                   relativna_vlaga_enota="%",
-                                   tlak_enota="hPa",
-                                   sončno_obsevanje_enota="W/m2",
-                                   vsota_padavin_enota="mm")
-          niz, npr.: "Ljubljana"
-    izhod: niz, npr.: "Podatki za Ljubljano ob 18.30. Jasno je. Temperatura
-                       zraka je 18,3 °C, relativna vlažnost znaša 21 %, zračni
-                       tlak je 1026,3 hPa. Sončno obsevanje znaša 191 W/m2. "
     zahteve: typing.NamedTuple
-    pretvori podatke iz namedtupla v besedilo
     """
     if vreme is None:
         return "Podatkov o vremenu trenutno ni. "
@@ -217,15 +183,7 @@ def vreme_izpis(vreme: Vreme,
 def veter_podatki(stran  # lxml.etree._Element
                   ) -> Veter:
     """
-    izhod: namedtuple, npr.: Veter(smer_vetra="severovzhodnik",
-                                  hitrost_vetra="3,5",
-                                  sunki_vetra="27",
-                                  hitrost_vetra_enota="m/s",
-                                  sunki_vetra_enota="m/s")
     zahteve: typing.NamedTuple, lxml.etree
-    izlušči podatke iz zapisa .xml z ARSO-ve spletne strani v namedtuple:
-    smer_vetra, hitrost_vetra, sunki_vetra, hitrost_vetra_enota,
-    sunki_vetra_enota
     """
     if not preveri_dostopnost_podatkov(stran):
         return None
@@ -264,11 +222,6 @@ def veter_podatki(stran  # lxml.etree._Element
 def veter_izpis(veter: Veter
                 ) -> str:
     """
-    vhod: namedtuple, npr.: Veter(smer_vetra="severovzhodnik",
-                                   hitrost_vetra="3,5",
-                                   sunki_vetra="27",
-                                   hitrost_vetra_enota="m/s",
-                                   sunki_vetra_enota="m/s")
     izhod: niz, npr.: "Piha severovzhodnik s hitrostjo 3,5 m/s in sunki
                        do 27 m/s. "
     zahteve: typing.NamedTuple
@@ -290,16 +243,9 @@ def onesnaženost_podatki(stran,  # lxml.etree._Element
                          kraj: str = "Ljubljana",
                          šifre: dict = n.ZRAK_ŠIFRE,
                          kategorije: dict = n.ZRAK_KATEGORIJE
-                         ) -> tuple:
+                         ) -> tuple:  # ({"pm10": "43", "co": "0.2" /./}, True)
     """
-    vhod: slovar, npr.: {"Ljubljana": "E21"},
-          slovar, npr.: {"pm10": ("µg/m³", 50)}
-    izhod: tuple, npr.: (
-            {"pm10": "43", "so2": "4", "co": "0.2", "o3": "114", "no2": "6"},
-            True) – True označuje čist zrak, None nasprotno
     zahteve: lxml.etree, nastavitve
-    izlušči podatke iz zapisa .xml z ARSO-ve spletne strani v tuple: s podatki
-    o delcih v zraku, stikalo čistega zraka
     """
     if stran is None:
         return None
@@ -324,14 +270,6 @@ def onesnaženost_izpis(rezultat: tuple,
                        enote: dict = n.ZRAK_KATEGORIJE
                        ) -> str:
     """
-    vhod: tuple, npr.: (
-            {"pm10": "43", "so2": "4", "co": "0.2", "o3": "114", "no2": "6"},
-            True) – True označuje čist zrak, None nasprotno
-    izhod: niz, npr.: "PM10: 43 µg/m³ (mejna vrednost: 50 µg/m³).
-                       SO2: 4 µg/m³ (mejna vrednost: 350 µg/m³).
-                       CO: 0.2 mg/m³ (mejna vrednost: 10 mg/m³).
-                       O3: 114 µg/m³ (mejna vrednost: 180 µg/m³).
-                       NO2: 6 µg/m³ (mejna vrednost: 200 µg/m³)."
     zahteve: nastavitve
     """
     if rezultat is None:
@@ -349,16 +287,10 @@ def onesnaženost_izpis(rezultat: tuple,
     return izpis.rstrip()
 
 
-def čas_uredi(niz: str
+def čas_uredi(niz: str  # "06.04.2020 19:38 CEST"
               ) -> Čas:
     """
-    vhod: niz, npr.: "06.04.2020 19:38 CEST"
-    izhod: namedtuple, npr.: Čas(datum="6. 4. 2020",
-                                 ura="6.32",
-                                 dtm=datetime.datetime(2020, 4, 6, 6, 32))
     zahteve: typing.NamedTuple
-    pretvori zapis časa (datum in ura) z ARSO-ve spletne strani v namedtuple:
-    datum, ura, zapis v obliki datetime.datetime
     """
     if type(niz) != str:
         return Čas(None, None, None)
@@ -386,13 +318,7 @@ def čas_uredi(niz: str
 def dan_podatki(stran  # lxml.etree._Element
                 ) -> str:
     """
-    izhod: namedtuple, npr.: Dan(datum="6. 4. 2020",
-                                 vzhod="6.32", zahod="19.38",
-                                 dolžina_dneva="13.06",
-                                 zaporedni_v_letu=96)
     zahteve: typing.NamedTuple, lxml.etree
-    izlušči podatke iz zapisa .xml z ARSO-ve spletne strani v namedtuple:
-    datum, vzhod, zahod, dolžina_dneva, zaporedni_v_letu
     """
     if not preveri_dostopnost_podatkov(stran):
         return None
@@ -425,13 +351,6 @@ def dan_podatki(stran  # lxml.etree._Element
 def dan_izpis(dan: Dan
               ) -> str:
     """
-    vhod: namedtuple, npr.: Dan(datum="6. 4. 2020",
-                                vzhod="6.32",
-                                zahod="19.38",
-                                dolžina_dneva="13.06",
-                                zaporedni_v_letu=96)
-    izhod: niz, npr.: "Danes je 6. 4. 2020, tj. 96. dan v letu. Sončni vzhod
-                       je ob 6.32, zahod ob 19.38, dan traja 13.06."
     zahteve: typing.NamedTuple
     """
     if dan is None:
@@ -462,17 +381,7 @@ def ni_povezave() -> str:
 def vremenko_izpis(kraj: str = "Ljubljana"
                    ) -> str:
     """
-    izhod: niz, npr.: "Podatki za Ljubljano ob 19.00.
-           Temperatura zraka je 17,1 °C, relativna vlažnost znaša 26 %,
-           zračni tlak je 1026,5 hPa. Sončno obsevanje znaša 102 W/m2. Piha
-           severovzhodnik s hitrostjo 5,1 m/s in sunki do 35 m/s. Danes je
-           6. 4. 2020, tj. 96. dan v letu. Sončni vzhod je ob 6.32, zahod ob
-           19.38, dan traja 13.06.
-           PM10: 43 µg/m³ (mejna vrednost: 50 µg/m³).
-           SO2: 4 µg/m³ (mejna vrednost: 350 µg/m³).
-           CO: 0.2 mg/m³ (mejna vrednost: 10 mg/m³).
-           O3: 114 µg/m³ (mejna vrednost: 180 µg/m³).
-           NO2: 6 µg/m³ (mejna vrednost: 200 µg/m³)."
+    osrednja funkcija, ki vrne izpis vremena (vreme, veter, dan, onesnaženost)
     """
     stran_vreme = vremenko.poštar.pridobi_vremenske_podatke(
         n.KRAJI_URL[kraj], kraj)
