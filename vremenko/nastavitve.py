@@ -61,7 +61,7 @@ VETER = {
 VREME = {
     'Opis vremena': ('/data/metData/nn_icon-wwsyn_icon'),
     'Temperatura': ('/data/metData/t', '°C'),
-    'Relativna vlaga': ('/data/metData/rhavg', '%'),
+    'Relativna vlaga': ('/data/metData/rh', '%'),
     'Tlak': ('/data/metData/mslavg', 'hPa'),
     'Vsota padavin': ('/data/metData/rr_val', 'mm'),
     'Povprečno sončno obsevanje': ('/data/metData/gSunRadavg', 'W/m2'),
