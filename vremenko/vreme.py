@@ -44,7 +44,8 @@ class Čas(NamedTuple):
     dtm: datetime.datetime
 
 
-def preveri_dostopnost_podatkov(stran):
+def preveri_dostopnost_podatkov(stran  # lxml.etree._Element
+                                ) -> bool:
     if stran is None:
         return None
     elif len(stran.xpath('/data/metData')) == 0:
@@ -222,8 +223,6 @@ def veter_podatki(stran  # lxml.etree._Element
 def veter_izpis(veter: Veter
                 ) -> str:
     """
-    izhod: niz, npr.: "Piha severovzhodnik s hitrostjo 3,5 m/s in sunki
-                       do 27 m/s. "
     zahteve: typing.NamedTuple
     """
     if veter is None:
@@ -312,11 +311,12 @@ def čas_uredi(niz: str  # "06.04.2020 19:38 CEST"
                              int(cifre_ura[1])))
     return Čas(datum=". ".join(datum),  # "1. 4. 2020"
                ura=ura,                 # "6.41"
-               dtm=dtm,)                # datetime.datetime(2020, 4, 1, 6, 41)
+               dtm=dtm,                 # datetime.datetime(2020, 4, 1, 6, 41)
+               )                
 
 
 def dan_podatki(stran  # lxml.etree._Element
-                ) -> str:
+                ) -> Dan:
     """
     zahteve: typing.NamedTuple, lxml.etree
     """
@@ -345,7 +345,8 @@ def dan_podatki(stran  # lxml.etree._Element
                vzhod=vzhod.ura,
                zahod=zahod.ura,
                dolžina_dneva=dolžina_dneva,
-               zaporedni_v_letu=zaporedni_v_letu.days,)
+               zaporedni_v_letu=zaporedni_v_letu.days
+               )
 
 
 def dan_izpis(dan: Dan
