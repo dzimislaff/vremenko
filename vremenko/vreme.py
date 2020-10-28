@@ -293,7 +293,7 @@ def čas_uredi(niz: str  # "06.04.2020 19:38 CEST"
     """
     if type(niz) != str:
         return Čas(None, None, None)
-    elif not (20 <= len(niz) <= 21):
+    elif not (19 <= len(niz) <= 21):
         return Čas(None, None, None)
 
     x = niz.split(" ")[:-1]
