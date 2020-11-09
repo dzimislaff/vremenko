@@ -19,6 +19,8 @@ def argumenti():
     parser.add_argument("podatkovna", help="podatkovna baza")
     parser.add_argument("kraj", help="kraj")
     parser.add_argument("dnevnik", help="dnevnik")
+    parser.add_argument("-l", "--log", action="store_true", default=3,
+                        help="vrsta dnevniških vnosov")
     return parser.parse_args()
 
 
@@ -26,7 +28,8 @@ def main():
     args = argumenti()
     vremenko.podatkovna.posodobi_podatkovno(args.podatkovna,
                                             args.kraj,
-                                            args.dnevnik
+                                            args.dnevnik,
+                                            args.log,
                                             )
 
 

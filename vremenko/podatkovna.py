@@ -8,12 +8,22 @@ from sqlite3 import Error
 import vremenko.vreme
 
 
-def beleženje(dnevnik: str = "podatkovna.log"
-            ):
+def beleženje(dnevnik: str = "podatkovna.log",
+              nivo_beleženja: int = 3,
+              ):
+    nivoji = {
+        5: logging.CRITICAL,
+        4: logging.ERROR,
+        3: logging.WARNING,
+        2: logging.INFO,
+        1: logging.DEBUG
+    }
     logging.basicConfig(format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
                         filename=dnevnik,
                         # encoding="utf-8",  # python >= 3.9
-                        level=logging.INFO)
+                        level=nivoji[nivo_beleženja])
+                        # level = logging.INFO)
+                        # level = logging.INFO)
     logger = logging.getLogger(__name__)
     return logger
 
@@ -112,8 +122,9 @@ vnesi_vremenko = """
 def posodobi_podatkovno(podatkovna: str = "ljubljana-2020-11.db",
                         kraj: str = "Ljubljana",
                         dnevnik: str = "ljubljana-2020-11.log",
+                        nivo_beleženja: int = 3,
                         ):
-    logger = beleženje(dnevnik)
+    logger = beleženje(dnevnik, nivo_beleženja)
 
     povezava = poveži_podatkovno(podatkovna, logger)
 
