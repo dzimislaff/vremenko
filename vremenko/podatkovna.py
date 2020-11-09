@@ -8,15 +8,19 @@ from sqlite3 import Error
 import vremenko.vreme
 
 
-# omogoči beleženje
-logging.basicConfig(format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-                    filename="podatkovna.log",
-                    # encoding="utf-8",  # python >= 3.9
-                    level=logging.INFO)
-logger = logging.getLogger(__name__)
+def beleženje(dnevnik: str = "podatkovna.log"
+            ):
+    logging.basicConfig(format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+                        filename=dnevnik,
+                        # encoding="utf-8",  # python >= 3.9
+                        level=logging.INFO)
+    logger = logging.getLogger(__name__)
+    return logger
 
 
-def poveži_podatkovno(lokacija: str):
+def poveži_podatkovno(lokacija: str,
+                      logger,
+                      ):
     povezava = None
     try:
         povezava = sqlite3.connect(lokacija)
@@ -28,6 +32,7 @@ def poveži_podatkovno(lokacija: str):
 
 def izvedi_ukaz(povezava,
                 ukaz: str,
+                logger,
                 *vnos: str
                 ):
     kazalec = povezava.cursor()
@@ -45,7 +50,8 @@ def izvedi_ukaz(povezava,
 
 # TODO
 # def preberi_tabelo(povezava,
-#                    ukaz
+#                    ukaz,
+#                    logger,
 #                    ):
 #     kazalec = povezava.cursor()
 #     podatki = None
@@ -104,15 +110,18 @@ vnesi_vremenko = """
 
 
 def posodobi_podatkovno(podatkovna: str = "ljubljana-2020-11.db",
-                        kraj: str = "Ljubljana"
+                        kraj: str = "Ljubljana",
+                        dnevnik: str = "ljubljana-2020-11.log",
                         ):
-    povezava = poveži_podatkovno(podatkovna)
+    logger = beleženje(dnevnik)
+
+    povezava = poveži_podatkovno(podatkovna, logger)
 
     vreme = vremenko.vreme.vremenko_podatki(kraj)[:3]
     vreme = vreme[0][:7] + vreme[1][:3] + vreme[2]
 
-    izvedi_ukaz(povezava, ustvari_vremenko)
-    izvedi_ukaz(povezava, vnesi_vremenko, *vreme)
+    izvedi_ukaz(povezava, ustvari_vremenko, logger)
+    izvedi_ukaz(povezava, vnesi_vremenko, logger, *vreme)
 
 
 if __name__ == '__main__':

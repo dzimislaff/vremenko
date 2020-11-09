@@ -18,12 +18,16 @@ def argumenti():
     )
     parser.add_argument("podatkovna", help="podatkovna baza")
     parser.add_argument("kraj", help="kraj")
+    parser.add_argument("dnevnik", help="dnevnik")
     return parser.parse_args()
 
 
 def main():
     args = argumenti()
-    vremenko.podatkovna.posodobi_podatkovno(args.podatkovna, args.kraj)
+    vremenko.podatkovna.posodobi_podatkovno(args.podatkovna,
+                                            args.kraj,
+                                            args.dnevnik
+                                            )
 
 
 if __name__ == '__main__':
