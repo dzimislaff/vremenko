@@ -68,27 +68,53 @@ VREME = {
 }
 
 
-# slovar s prevodom vremenskih oznak
-OPIS = {
-    'clear': 'Jasno je',
-    'mostClear': 'Pretežno jasno je',
-    'partCloudy': 'Delno oblačno je',
-    'modCloudy': 'Zmerno oblačno je',
-    'prevCloudy': 'Pretežno oblačno je',
-    'overcast': 'Oblačno je',
-    'FG': 'Megla je',
-    'RA': 'Rosi',
-    'RASN': 'Dež s snegom je',
-    'SN': 'Sneži',
-    'TS': 'Nevihta je',
-    'TSGR': 'Nevihta s točo je',
-    'lightRA': 'Rahlo dežuje',
-    'modRA': 'Dežuje',
-    'overcast_lightRA': 'Oblačno je z manjšimi padavinami',
-    'overcast_modRA': 'Oblačno je z zmernimi padavinami',
-    'overcast_heavyRA': 'Oblačno je z močnimi padavinami',
-    'prevCloudy_lightRA': 'Pretežno oblačno je z manjšimi padavinami',
-    'overcast_lightSN': 'Oblačno z manjšim sneženjem',
+# slovar s prevodom vremenskih oznak za podatkovno bazo
+OPIS_BAZA = {
+    'clear': 'jasno',
+    'mostClear': 'pretežno jasno',
+    'slightCloudy': 'rahlo oblačno',
+    'partCloudy': 'delno oblačno',
+    'modCloudy': 'zmerno oblačno',
+    'prevCloudy': 'pretežno oblačno',
+    'overcast': 'oblačno',
+    'FG': 'megla',
+    'RA': 'rosenje',
+    'RASN': 'dež s snegom',
+    'SN': 'sneženje',
+    'TS': 'nevihta',
+    'TSGR': 'nevihta s točo',
+    'lightRA': 'rahel dež',
+    'modRA': 'dež',
+    'overcast_lightRA': 'oblačno z manjšimi padavinami',
+    'overcast_modRA': 'oblačno z zmernimi padavinami',
+    'overcast_heavyRA': 'oblačno z močnimi padavinami',
+    'prevCloudy_lightRA': 'pretežno oblačno z manjšimi padavinami',
+    'overcast_lightSN': 'oblačno z manjšim sneženjem',
+}
+
+
+# slovar s prevodom vremenskih oznak za izpis
+OPIS_IZPIS = {
+    'jasno': 'Jasno je',
+    'pretežno jasno': 'Pretežno jasno je',
+    'rahlo oblačno': 'Rahlo oblačno je',
+    'delno oblačno': 'Delno oblačno je',
+    'zmerno oblačno': 'Zmerno oblačno je',
+    'pretežno oblačno': 'Pretežno oblačno je',
+    'oblačno': 'Oblačno je',
+    'megla': 'Megla je',
+    'rosenje': 'Rosi',
+    'dež s snegom': 'Dež s snegom je',
+    'sneženje': 'Sneži',
+    'nevihta': 'Nevihta je',
+    'nevihta s točo': 'Nevihta s točo je',
+    'rahel dež': 'Rahlo dežuje',
+    'dež': 'Dežuje',
+    'oblačno z manjšimi padavinami': 'Oblačno je z manjšimi padavinami',
+    'oblačno z zmernimi padavinami': 'Oblačno je z zmernimi padavinami',
+    'oblačno z močnimi padavinami': 'Oblačno je z močnimi padavinami',
+    'pretežno oblačno z manjšimi padavinami': 'Pretežno oblačno je z manjšimi padavinami',
+    'oblačno z manjšim sneženjem': 'Oblačno z manjšim sneženjem',
 }
 
 

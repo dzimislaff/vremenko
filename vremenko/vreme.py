@@ -8,26 +8,26 @@ import vremenko.poštar
 
 
 class Vreme(NamedTuple):
-    opis_vremena: str
     ura: str
+    opis_vremena: str
     temperatura: str  # zaenkrat
     relativna_vlaga: int
     tlak: str  # zaenkrat
     sončno_obsevanje: str  # zaenkrat
     vsota_padavin: str  # zaenkrat
-    temperatura_enota: str = "°C"
-    relativna_vlaga_enota: str = "%"
-    tlak_enota: str = "hPa"
-    sončno_obsevanje_enota: str = "W/m2"
-    vsota_padavin_enota: str = "mm"
+    temperatura_enota: str  # = "°C"
+    relativna_vlaga_enota: str  # = "%"
+    tlak_enota: str  # = "hPa"
+    sončno_obsevanje_enota: str  # = "W/m2"
+    vsota_padavin_enota: str  # = "mm"
 
 
 class Veter(NamedTuple):
     smer_vetra: str
     hitrost_vetra: str  # zaenkrat
     sunki_vetra: str  # zaenkrat
-    hitrost_vetra_enota: str = "m/s"
-    sunki_vetra_enota: str = "m/s"
+    hitrost_vetra_enota: str  # = "m/s"
+    sunki_vetra_enota: str  # = "m/s"
 
 
 class Dan(NamedTuple):
@@ -63,7 +63,7 @@ def vreme_podatki(stran  # lxml.etree._Element
         return None
 
     try:
-        opis_vremena = n.OPIS[stran.xpath(n.VREME["Opis vremena"])[0].text]
+        opis_vremena = n.OPIS_BAZA[stran.xpath(n.VREME["Opis vremena"])[0].text]
     except KeyError:
         opis_vremena = None
 
@@ -119,17 +119,17 @@ def vreme_podatki(stran  # lxml.etree._Element
     else:
         vsota_padavin_enota = n.VREME["Vsota padavin"][1]
 
-    return Vreme(opis_vremena=opis_vremena,
-                 ura=ura,
+    return Vreme(ura=ura,
+                 opis_vremena=opis_vremena,
                  temperatura=temperatura,
-                 relativna_vlaga=relativna_vlaga,
-                 tlak=tlak,
-                 sončno_obsevanje=sončno_obsevanje,
-                 vsota_padavin=vsota_padavin,
                  temperatura_enota=temperatura_enota,
+                 relativna_vlaga=relativna_vlaga,
                  relativna_vlaga_enota=relativna_vlaga_enota,
+                 tlak=tlak,
                  tlak_enota=tlak_enota,
+                 sončno_obsevanje=sončno_obsevanje,
                  sončno_obsevanje_enota=sončno_obsevanje_enota,
+                 vsota_padavin=vsota_padavin,
                  vsota_padavin_enota=vsota_padavin_enota,
                  )
 
@@ -151,7 +151,7 @@ def vreme_izpis(vreme: Vreme,
         izpis = f"Podatki za {n.KRAJI_SKLONI[kraj]}.\n"
 
     if vreme.opis_vremena:
-        izpis += f"{vreme.opis_vremena}. "
+        izpis += f"{n.OPIS_IZPIS[vreme.opis_vremena]}. "
 
     if vreme.temperatura:
         izpis += (f"Temperatura zraka je "
@@ -214,8 +214,8 @@ def veter_podatki(stran  # lxml.etree._Element
 
     return Veter(smer_vetra=smer_vetra,
                  hitrost_vetra=hitrost_vetra,
-                 sunki_vetra=sunki_vetra,
                  hitrost_vetra_enota=hitrost_vetra_enota,
+                 sunki_vetra=sunki_vetra,
                  sunki_vetra_enota=sunki_vetra_enota,
                  )
 
@@ -312,7 +312,7 @@ def čas_uredi(niz: str  # "06.04.2020 19:38 CEST"
     return Čas(datum=". ".join(datum),  # "1. 4. 2020"
                ura=ura,                 # "6.41"
                dtm=dtm,                 # datetime.datetime(2020, 4, 1, 6, 41)
-               )                
+               )
 
 
 def dan_podatki(stran  # lxml.etree._Element
@@ -379,39 +379,64 @@ def ni_povezave() -> str:
     return "Podatki so trenutno nedosegljivi."
 
 
+def vremenko_podatki(kraj: str = "Ljubljana"
+                     ) -> tuple:
+    """
+    osrednja funkcija, ki pridobi podatke o vremenu (vreme, veter, dan,
+    onesnaženost)
+    """
+    stran_vreme = vremenko.poštar.pridobi_vremenske_podatke(
+        n.KRAJI_URL[kraj], kraj)
+    if kraj in ("Ljubljana", "Maribor", "Celje", "Murska Sobota", "Koper",
+                "Nova Gorica", "Trbovlje", "Zagorje"):
+        stran_onesnaženost = vremenko.poštar.pridobi_vremenske_podatke(n.ZRAK)
+    else:
+        stran_onesnaženost = None
+
+    if (stran_vreme is None) and (stran_onesnaženost is None):
+        return "ni_povezave"
+
+    elif stran_vreme is None:
+        return "vreme_ni_podatkov"
+
+    else:
+        return (vreme_podatki(stran_vreme),
+                veter_podatki(stran_vreme),
+                dan_podatki(stran_vreme),
+                onesnaženost_podatki(stran_onesnaženost, kraj)
+                )
+
+
 def vremenko_izpis(kraj: str = "Ljubljana"
                    ) -> str:
     """
     osrednja funkcija, ki vrne izpis vremena (vreme, veter, dan, onesnaženost)
     """
-    stran_vreme = vremenko.poštar.pridobi_vremenske_podatke(
-        n.KRAJI_URL[kraj], kraj)
-    stran_onesnaženost = vremenko.poštar.pridobi_vremenske_podatke(n.ZRAK)
+    podatki = vremenko_podatki(kraj)
 
-    if (stran_vreme is None) and (stran_onesnaženost is None):
-        return ni_povezave()
-
-    elif stran_vreme is None:
-        return vreme_ni_podatkov()
+    if type(podatki) is not tuple:
+        return eval(podatki)()
 
     else:
+        vreme = podatki[0]
+        veter = podatki[1]
+        dan = podatki[2]
+        onesnaženost = podatki[3]
         izpis = ""
-        izpis_vreme = vreme_izpis(vreme_podatki(stran_vreme), kraj)
+        izpis_vreme = vreme_izpis(vreme, kraj)
         if izpis_vreme:
             izpis += izpis_vreme
 
-        izpis_veter = veter_izpis(veter_podatki(stran_vreme))
+        izpis_veter = veter_izpis(veter)
         if izpis_veter:
             izpis += izpis_veter
 
-        izpis_dolžina_dneva = dan_izpis(dan_podatki(stran_vreme))
+        izpis_dolžina_dneva = dan_izpis(dan)
         if izpis_dolžina_dneva:
             izpis += izpis_dolžina_dneva
 
-        if kraj in ("Ljubljana", "Maribor", "Celje", "Murska Sobota", "Koper",
-                    "Nova Gorica", "Trbovlje", "Zagorje"):
-            izpis += "\n" + onesnaženost_izpis(
-                onesnaženost_podatki(stran_onesnaženost, kraj))
+        if onesnaženost:
+            izpis += "\n" + onesnaženost_izpis(onesnaženost)
     return izpis
 
 
