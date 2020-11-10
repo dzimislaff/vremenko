@@ -46,10 +46,10 @@ class Čas(NamedTuple):
 
 def preveri_dostopnost_podatkov(stran  # lxml.etree._Element
                                 ) -> bool:
-    if stran is None:
-        return None
+    if stran is False:
+        return False
     elif len(stran.xpath('/data/metData')) == 0:
-        return None
+        return False
     else:
         return True
 
@@ -386,7 +386,7 @@ def vremenko_podatki(kraj: str = "Ljubljana"
     onesnaženost)
     """
     stran_vreme = vremenko.poštar.pridobi_vremenske_podatke(
-        n.KRAJI_URL[kraj], kraj)
+        n.KRAJI_URL[kraj])
     if kraj in ("Ljubljana", "Maribor", "Celje", "Murska Sobota", "Koper",
                 "Nova Gorica", "Trbovlje", "Zagorje"):
         stran_onesnaženost = vremenko.poštar.pridobi_vremenske_podatke(n.ZRAK)

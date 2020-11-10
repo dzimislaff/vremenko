@@ -21,8 +21,6 @@ def beleženje(dnevnik: str = "podatkovna.log",
                         filename=dnevnik,
                         # encoding="utf-8",  # python >= 3.9
                         level=nivoji[nivo_beleženja])
-    # level = logging.INFO)
-    # level = logging.INFO)
     logger = logging.getLogger(__name__)
     return logger
 

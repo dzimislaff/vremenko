@@ -16,7 +16,7 @@ kraji = vremenko.nastavitve.KRAJI_URL.keys()
 
 @pytest.mark.parametrize('kraj', kraji)
 def test_vreme_podatki(kraj):
-    stran = vremenko.poštar.pridobi_vremenske_podatke(n.KRAJI_URL[kraj], kraj)
+    stran = vremenko.poštar.pridobi_vremenske_podatke(n.KRAJI_URL[kraj])
     podatki = vremenko.vreme.vreme_podatki(stran)
     # assert type(podatki.opis_vremena) == str
     assert type(podatki.ura) == str
