@@ -44,6 +44,13 @@ class Čas(NamedTuple):
     dtm: datetime.datetime
 
 
+class Izpis(NamedTuple):
+    vreme: NamedTuple
+    veter: NamedTuple
+    dan: NamedTuple
+    onesnaženost: tuple
+
+
 def preveri_dostopnost_podatkov(stran  # lxml.etree._Element
                                 ) -> bool:
     if stran is False:
@@ -63,7 +70,8 @@ def vreme_podatki(stran  # lxml.etree._Element
         return None
 
     try:
-        opis_vremena = n.OPIS_BAZA[stran.xpath(n.VREME["Opis vremena"])[0].text]
+        opis_vremena = n.OPIS_BAZA[stran.xpath(
+            n.VREME["Opis vremena"])[0].text]
     except KeyError:
         opis_vremena = None
 
@@ -400,11 +408,12 @@ def vremenko_podatki(kraj: str = "Ljubljana"
         return "vreme_ni_podatkov"
 
     else:
-        return (vreme_podatki(stran_vreme),
-                veter_podatki(stran_vreme),
-                dan_podatki(stran_vreme),
-                onesnaženost_podatki(stran_onesnaženost, kraj)
-                )
+        return Izpis(vreme=vreme_podatki(stran_vreme),
+                     veter=veter_podatki(stran_vreme),
+                     dan=dan_podatki(stran_vreme),
+                     onesnaženost=onesnaženost_podatki(stran_onesnaženost,
+                                                       kraj),
+                     )
 
 
 def vremenko_izpis(kraj: str = "Ljubljana"
@@ -414,29 +423,26 @@ def vremenko_izpis(kraj: str = "Ljubljana"
     """
     podatki = vremenko_podatki(kraj)
 
-    if type(podatki) is not tuple:
+    if type(podatki) is not vremenko.vreme.Izpis:
+        # kliče vreme_ni_podatkov() ali ni_povezave()
         return eval(podatki)()
 
     else:
-        vreme = podatki[0]
-        veter = podatki[1]
-        dan = podatki[2]
-        onesnaženost = podatki[3]
         izpis = ""
-        izpis_vreme = vreme_izpis(vreme, kraj)
+        izpis_vreme = vreme_izpis(podatki.vreme, kraj)
         if izpis_vreme:
             izpis += izpis_vreme
 
-        izpis_veter = veter_izpis(veter)
+        izpis_veter = veter_izpis(podatki.veter)
         if izpis_veter:
             izpis += izpis_veter
 
-        izpis_dolžina_dneva = dan_izpis(dan)
+        izpis_dolžina_dneva = dan_izpis(podatki.dan)
         if izpis_dolžina_dneva:
             izpis += izpis_dolžina_dneva
 
-        if onesnaženost:
-            izpis += "\n" + onesnaženost_izpis(onesnaženost)
+        if podatki.onesnaženost:
+            izpis += "\n" + onesnaženost_izpis(podatki.onesnaženost)
     return izpis
 
 
