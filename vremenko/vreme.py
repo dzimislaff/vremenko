@@ -10,11 +10,11 @@ import vremenko.poštar
 class Vreme(NamedTuple):
     ura: str
     opis_vremena: str
-    temperatura: str  # zaenkrat
+    temperatura: str
     relativna_vlaga: int
-    tlak: str  # zaenkrat
-    sončno_obsevanje: str  # zaenkrat
-    vsota_padavin: str  # zaenkrat
+    tlak: str
+    sončno_obsevanje: str
+    vsota_padavin: str
     temperatura_enota: str  # = "°C"
     relativna_vlaga_enota: str  # = "%"
     tlak_enota: str  # = "hPa"
@@ -24,8 +24,8 @@ class Vreme(NamedTuple):
 
 class Veter(NamedTuple):
     smer_vetra: str
-    hitrost_vetra: str  # zaenkrat
-    sunki_vetra: str  # zaenkrat
+    hitrost_vetra: str
+    sunki_vetra: str
     hitrost_vetra_enota: str  # = "m/s"
     sunki_vetra_enota: str  # = "m/s"
 
@@ -49,6 +49,15 @@ class Izpis(NamedTuple):
     veter: NamedTuple
     dan: NamedTuple
     onesnaženost: tuple
+
+
+class Onesnaženost(NamedTuple):
+    pm10: str
+    so2: str
+    co: str
+    o3: str
+    no2: str
+    opozorilo: bool
 
 
 def preveri_dostopnost_podatkov(stran  # lxml.etree._Element
@@ -250,7 +259,7 @@ def onesnaženost_podatki(stran,  # lxml.etree._Element
                          kraj: str = "Ljubljana",
                          šifre: dict = n.ZRAK_ŠIFRE,
                          kategorije: dict = n.ZRAK_KATEGORIJE
-                         ) -> tuple:  # ({"pm10": "43", "co": "0.2" /./}, True)
+                         ) -> Onesnaženost:
     """
     zahteve: lxml.etree, nastavitve
     """
@@ -258,39 +267,50 @@ def onesnaženost_podatki(stran,  # lxml.etree._Element
         return None
 
     šifra = šifre[kraj]
-    rezultat = {}
-    čist_zrak = True
-    for i in kategorije:
+
+    def vnesi(i):
         try:
-            rezultat[i] = stran.xpath(
+            return stran.xpath(
                 f"/arsopodatki/postaja[@sifra='{šifra}']/{i}")[0].text
         except IndexError:
+            return None
+
+    def čist_zrak(podatki):
+        try:
+            for i, j in zip(podatki, kategorije):
+                if int(float(i.lstrip("<"))) >= int(kategorije[j][1]):
+                    return True  # opozorilo, da je zrak onesnažen
+        except AttributeError:
             pass
-        else:
-            if rezultat[i]:
-                if int(float(rezultat[i].lstrip("<"))) >= int(kategorije[i][1]):
-                    čist_zrak = False
-    return rezultat, čist_zrak
+        return False
+
+    onesnaženost = [vnesi(i) for i in kategorije]
+    zrak = čist_zrak(onesnaženost)
+    onesnaženost.append(zrak)
+
+    return Onesnaženost(*onesnaženost)
 
 
-def onesnaženost_izpis(rezultat: tuple,
+def onesnaženost_izpis(onesnaženost: Onesnaženost,
                        enote: dict = n.ZRAK_KATEGORIJE
                        ) -> str:
     """
     zahteve: nastavitve
     """
-    if rezultat is None:
+    if onesnaženost is None:
         return "Podatkov o kakovosti zraka trenutno ni."
 
     izpis = ""
-    if not rezultat[1]:
+    if onesnaženost.opozorilo:
         izpis += "POZOR! Zrak je onesnažen.\n"
-    for kategorija, vrednost in rezultat[0].items():
-        if vrednost:
-            izpis += (f"{kategorija.upper()}: "
-                      f"{vrednost} {enote[kategorija][0]} "
-                      f"(mejna vrednost: {enote[kategorija][1]} "
-                      f"{enote[kategorija][0]}).\n")
+
+    for i in range(5):
+        if not onesnaženost[i]:
+            continue
+        izpis += (f"{onesnaženost._fields[i].upper()}: "
+                  f"{onesnaženost[i]} {enote[onesnaženost._fields[i]][0]} "
+                  f"(mejna vrednost: {enote[onesnaženost._fields[i]][1]}) "
+                  f"{enote[onesnaženost._fields[i]][0]}.\n")
     return izpis.rstrip()
 
 
