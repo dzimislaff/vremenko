@@ -63,8 +63,8 @@ VREME = {
     'Temperatura': ('/data/metData/t', '°C'),
     'Relativna vlaga': ('/data/metData/rh', '%'),
     'Tlak': ('/data/metData/mslavg', 'hPa'),
-    'Vsota padavin': ('/data/metData/rr_val', 'mm'),
     'Povprečno sončno obsevanje': ('/data/metData/gSunRadavg', 'W/m2'),
+    'Vsota padavin': ('/data/metData/rr_val', 'mm'),
 }
 
 

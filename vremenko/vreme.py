@@ -11,15 +11,15 @@ class Vreme(NamedTuple):
     ura: str
     opis_vremena: str
     temperatura: str
-    relativna_vlaga: int
+    relativna_vlaga: str
     tlak: str
     sončno_obsevanje: str
     vsota_padavin: str
-    temperatura_enota: str  # = "°C"
-    relativna_vlaga_enota: str  # = "%"
-    tlak_enota: str  # = "hPa"
-    sončno_obsevanje_enota: str  # = "W/m2"
-    vsota_padavin_enota: str  # = "mm"
+    temperatura_enota: str = "°C"
+    relativna_vlaga_enota: str = "%"
+    tlak_enota: str = "hPa"
+    sončno_obsevanje_enota: str = "W/m2"
+    vsota_padavin_enota: str = "mm"
 
 
 class Veter(NamedTuple):
@@ -78,77 +78,31 @@ def vreme_podatki(stran  # lxml.etree._Element
     if not preveri_dostopnost_podatkov(stran):
         return None
 
-    try:
-        opis_vremena = n.OPIS_BAZA[stran.xpath(
-            n.VREME["Opis vremena"])[0].text]
-    except KeyError:
-        opis_vremena = None
+    # temperatura, rel. vlaga, tlak, povprečno sončno obsevanje, vsota padavin
+    kategorije = tuple(n.VREME.keys())[1:]
 
-    try:
-        ura = čas_uredi(stran.xpath(
-            "/data/metData/tsValid_issued")[0].text).ura
+    try:  # ura
+        vrednosti = [čas_uredi(stran.xpath(
+            "/data/metData/tsValid_issued")[0].text).ura]
     except KeyError:
-        ura = None
+        vrednosti = [None]
 
-    try:
-        temperatura = stran.xpath(n.VREME["Temperatura"][0])[0].text
+    try:  # opis vremena
+        vrednosti.append(n.OPIS_BAZA[stran.xpath(
+            n.VREME["Opis vremena"])[0].text])
     except KeyError:
-        temperatura = None
-        temperatura_enota = None
+        vrednosti.append(None)
+
+    for kategorija in kategorije:  # temp., rel. vlaga, tlak, son. obs., pad.
+        try:
+            vrednosti.append(stran.xpath(n.VREME[kategorija][0])[0].text)
+        except KeyError:
+            vrednosti.append(None)
+
+    if not any(vrednosti):
+        return None
     else:
-        temperatura_enota = n.VREME["Temperatura"][1]
-
-    try:
-        relativna_vlaga = int(stran.xpath(
-            n.VREME["Relativna vlaga"][0])[0].text)
-    except KeyError:
-        relativna_vlaga = None
-        relativna_vlaga_enota = None
-    else:
-        relativna_vlaga_enota = n.VREME["Relativna vlaga"][1]
-
-    try:
-        tlak = stran.xpath(n.VREME["Tlak"][0])[0].text
-    except KeyError:
-        tlak = None
-        tlak_enota = None
-    else:
-        tlak_enota = n.VREME["Tlak"][1]
-
-    try:
-        sončno_obsevanje = stran.xpath(
-            n.VREME["Povprečno sončno obsevanje"][0])[0].text
-    except KeyError:
-        sončno_obsevanje = None
-        sončno_obsevanje_enota = None
-    else:
-        if sončno_obsevanje == "0":
-            sončno_obsevanje = None
-            sončno_obsevanje_enota = None
-        else:
-            sončno_obsevanje_enota = n.VREME["Povprečno sončno obsevanje"][1]
-
-    try:
-        vsota_padavin = stran.xpath(n.VREME["Vsota padavin"][0])[0].text
-    except KeyError:
-        vsota_padavin = None
-        vsota_padavin_enota = None
-    else:
-        vsota_padavin_enota = n.VREME["Vsota padavin"][1]
-
-    return Vreme(ura=ura,
-                 opis_vremena=opis_vremena,
-                 temperatura=temperatura,
-                 temperatura_enota=temperatura_enota,
-                 relativna_vlaga=relativna_vlaga,
-                 relativna_vlaga_enota=relativna_vlaga_enota,
-                 tlak=tlak,
-                 tlak_enota=tlak_enota,
-                 sončno_obsevanje=sončno_obsevanje,
-                 sončno_obsevanje_enota=sončno_obsevanje_enota,
-                 vsota_padavin=vsota_padavin,
-                 vsota_padavin_enota=vsota_padavin_enota,
-                 )
+        return Vreme(*vrednosti)
 
 
 def vreme_izpis(vreme: Vreme,
@@ -158,8 +112,6 @@ def vreme_izpis(vreme: Vreme,
     zahteve: typing.NamedTuple
     """
     if vreme is None:
-        return "Podatkov o vremenu trenutno ni. "
-    elif not any(vreme):
         return "Podatkov o vremenu trenutno ni. "
 
     if vreme.ura:
