@@ -15,8 +15,8 @@ def test_dan_podatki(kraj):
     stran = vremenko.poštar.pridobi_vremenske_podatke(n.KRAJI_URL[kraj])
     podatki = vremenko.vreme.dan_podatki(stran)
 
-    assert type(podatki.datum) == str
-    assert 10 <= len(podatki.datum) <= 12
+    assert type(podatki.datum_izpis) == str
+    assert 10 <= len(podatki.datum_izpis) <= 12
 
     assert type(podatki.vzhod) == str
     assert len(podatki.vzhod) == 4
