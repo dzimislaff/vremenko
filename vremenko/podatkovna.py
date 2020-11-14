@@ -13,7 +13,8 @@ def poveži_podatkovno(lokacija: str,
                       ):
     povezava = None
     try:
-        povezava = sqlite3.connect(lokacija)
+        povezava = sqlite3.connect(
+            lokacija, detect_types=sqlite3.PARSE_DECLTYPES)
         logger.info("Povezava s podatkovno bazo je bila uspešno vzpostavljena.")
     except Error as e:
         logger.error(f"Prišlo je do napake: {e}")
@@ -54,9 +55,33 @@ def izvedi_ukaz(povezava,
 #     return podatki
 
 
+ustvari_dan = """
+    CREATE TABLE IF NOT EXISTS dan (id INTEGER PRIMARY KEY,
+        datum DATE,
+        vzhod TEXT,
+        zahod TEXT,
+        dolžina_dneva TEXT,
+        zaporedni_v_letu INTEGER,
+        unique (datum)
+    )
+"""
+
+vnesi_dan = """
+    INSERT INTO
+        dan (
+            datum,
+            vzhod,
+            zahod,
+            dolžina_dneva,
+            zaporedni_v_letu
+        )
+    VALUES (?,?,?,?,?)
+"""
+
 ustvari_vremenko = """
     CREATE TABLE IF NOT EXISTS vreme (id INTEGER PRIMARY KEY,
         ura TEXT,
+        datum DATE,
         opis_vremena TEXT,
         temperatura INTEGER,  -- °C
         relativna_vlaga INTEGER,  -- %
@@ -66,20 +91,23 @@ ustvari_vremenko = """
         smer_vetra TEXT,
         hitrost_vetra INTEGER,  -- m/s
         sunki_vetra INTEGER,  -- m/s
-        datum TEXT,
-        vzhod TEXT,
-        zahod TEXT,
-        dolžina_dneva TEXT,
-        zaporedni_v_letu INTEGER,
-        unique (ura, datum)
+        pm10 INTEGER,  -- µg/m³
+        so2 INTEGER,  -- µg/m³
+        co INTEGER,  -- mg/m³
+        o3 INTEGER,  -- µg/m³
+        no2 INTEGER,  -- µg/m³
+        opozorilo BOOLEAN NOT NULL CHECK (opozorilo IN (0,1)),
+        unique (ura, datum),
+        FOREIGN KEY (datum)
+            REFERENCES dan (datum)
     )
 """
-
 
 vnesi_vremenko = """
     INSERT INTO
         vreme (
             ura,
+            datum,
             opis_vremena,
             temperatura,
             relativna_vlaga,
@@ -89,13 +117,14 @@ vnesi_vremenko = """
             smer_vetra,
             hitrost_vetra,
             sunki_vetra,
-            datum,
-            vzhod,
-            zahod,
-            dolžina_dneva,
-            zaporedni_v_letu
+            pm10,
+            so2,
+            co,
+            o3,
+            no2,
+            opozorilo
         )
-    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
 """
 
 
@@ -106,11 +135,20 @@ def posodobi_podatkovno(podatkovna: str = "ljubljana-2020-11.db",
 
     povezava = poveži_podatkovno(podatkovna, logger)
 
-    vreme = vremenko.vreme.vremenko_podatki(kraj)[:3]
-    vreme = vreme[0][:7] + vreme[1][:3] + vreme[2]
+    podatki = vremenko.vreme.vremenko_podatki(kraj)
+
+    if not podatki.onesnaženost:
+        podatki_vreme = podatki.vreme[:8] + \
+            podatki.veter[:3] + tuple([0 for i in range(6)])
+    else:
+        podatki_vreme = podatki.vreme[:8] + \
+            podatki.veter[:3] + podatki.onesnaženost
+
+    izvedi_ukaz(povezava, ustvari_dan, logger)
+    izvedi_ukaz(povezava, vnesi_dan, logger, *podatki.dan[:5])
 
     izvedi_ukaz(povezava, ustvari_vremenko, logger)
-    izvedi_ukaz(povezava, vnesi_vremenko, logger, *vreme)
+    izvedi_ukaz(povezava, vnesi_vremenko, logger, *podatki_vreme)
 
 
 if __name__ == '__main__':
