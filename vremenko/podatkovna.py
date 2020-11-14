@@ -39,21 +39,6 @@ def izvedi_ukaz(povezava,
     except Error as e:
         logger.error(f"Prišlo je do napake: {e}")
 
-# TODO
-# def preberi_tabelo(povezava,
-#                    ukaz,
-#                    logger,
-#                    ):
-#     kazalec = povezava.cursor()
-#     podatki = None
-#     try:
-#         kazalec.execute(ukaz)
-#         podatki = kazalec.fetchall()
-#         logger.info("Uspešno pridobljeni podatki iz podatkovne baze.")
-#     except Error as e:
-#         logger.error(f"Prišlo je do napake: {e}")
-#     return podatki
-
 
 ustvari_dan = """
     CREATE TABLE IF NOT EXISTS dan (id INTEGER PRIMARY KEY,
@@ -127,6 +112,15 @@ vnesi_vremenko = """
     VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
 """
 
+odstrani_znak_onesnaženost = """
+    UPDATE vreme
+    SET pm10 = trim(pm10, '<'),
+        so2 = trim(so2, '<'),
+        co = trim(co, '<'),
+        o3 = trim(o3, '<'),
+        no2 = trim(no2, '<');
+"""
+
 
 def posodobi_podatkovno(podatkovna: str = "ljubljana-2020-11.db",
                         kraj: str = "Ljubljana",
@@ -144,11 +138,14 @@ def posodobi_podatkovno(podatkovna: str = "ljubljana-2020-11.db",
         podatki_vreme = podatki.vreme[:8] + \
             podatki.veter[:3] + podatki.onesnaženost
 
+    # tabela dan
     izvedi_ukaz(povezava, ustvari_dan, logger)
     izvedi_ukaz(povezava, vnesi_dan, logger, *podatki.dan[:5])
 
+    # tabela vreme
     izvedi_ukaz(povezava, ustvari_vremenko, logger)
     izvedi_ukaz(povezava, vnesi_vremenko, logger, *podatki_vreme)
+    izvedi_ukaz(povezava, odstrani_znak_onesnaženost, logger)
 
 
 if __name__ == '__main__':
