@@ -8,7 +8,7 @@ import vremenko.podatkovna
 
 
 def beleženje(dnevnik: str = "podatkovna.log",
-              nivo_beleženja: int = 3,
+              nivo_beleženja: int = 4,
               ):
     nivoji = {
         5: logging.CRITICAL,
@@ -39,7 +39,7 @@ def argumenti():
     parser.add_argument("podatkovna", help="podatkovna baza")
     parser.add_argument("kraj", help="kraj")
     parser.add_argument("dnevnik", help="dnevnik")
-    parser.add_argument("-l", "--log", action="store_true", default=3,
+    parser.add_argument("-l", "--log", type=int, default=3,
                         help="vrsta dnevniških vnosov")
     return parser.parse_args()
 
