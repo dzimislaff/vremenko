@@ -2,27 +2,8 @@
 # -*- coding: 'UTF-8' -*-
 
 import argparse
-import logging
-
+import vremenko.beleženje
 import vremenko.podatkovna
-
-
-def beleženje(dnevnik: str = "podatkovna.log",
-              nivo_beleženja: int = 4,
-              ):
-    nivoji = {
-        5: logging.CRITICAL,
-        4: logging.ERROR,
-        3: logging.WARNING,
-        2: logging.INFO,
-        1: logging.DEBUG
-    }
-    logging.basicConfig(format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-                        filename=dnevnik,
-                        # encoding="utf-8",  # python >= 3.9
-                        level=nivoji[nivo_beleženja])
-    logger = logging.getLogger(__name__)
-    return logger
 
 
 def argumenti():
@@ -46,7 +27,7 @@ def argumenti():
 
 def main():
     args = argumenti()
-    logger = beleženje(args.dnevnik, args.log)
+    logger = vremenko.beleženje.beleženje(args.dnevnik, args.log)
     vremenko.podatkovna.posodobi_podatkovno(args.podatkovna,
                                             args.kraj,
                                             )

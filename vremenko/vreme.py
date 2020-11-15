@@ -4,6 +4,8 @@
 from typing import NamedTuple
 from dateutil import tz
 import datetime
+# import vremenko.beleženje
+import logging
 import vremenko.nastavitve as n
 import vremenko.poštar
 
@@ -28,8 +30,8 @@ class Veter(NamedTuple):
     smer_vetra: str
     hitrost_vetra: str
     sunki_vetra: str
-    hitrost_vetra_enota: str  # = "m/s"
-    sunki_vetra_enota: str  # = "m/s"
+    hitrost_vetra_enota: str = "m/s"
+    sunki_vetra_enota: str = "m/s"
 
 
 class Onesnaženost(NamedTuple):
@@ -87,19 +89,23 @@ def vreme_podatki(stran  # lxml.etree._Element
     try:  # ura
         dtm = čas_uredi(stran.xpath("/data/metData/tsValid_issued")[0].text)
         vrednosti = [dtm.ura, dtm.dtm.date()]
-    except KeyError:
+    except KeyError as e:
+        logging.warning(f"nisem uspel razbrati podatka o uri; {e}")
         vrednosti = [None, None]
 
     try:  # opis vremena
         vrednosti.append(n.OPIS_BAZA[stran.xpath(
             n.VREME["Opis vremena"])[0].text])
-    except KeyError:
+    except KeyError as e:
+        logging.warning(f"nisem uspel razbrati podatka o opisu vremena; {e}")
         vrednosti.append(None)
 
     for kategorija in kategorije:  # temp., rel. vlaga, tlak, son. obs., pad.
         try:
             vrednosti.append(stran.xpath(n.VREME[kategorija][0])[0].text)
-        except KeyError:
+        except KeyError as e:
+            logging.warning(
+                f"nisem uspel razbrati podatka o kategoriji: {kategorija}; {e}")
             vrednosti.append(None)
 
     if not any(vrednosti):
@@ -163,32 +169,27 @@ def veter_podatki(stran  # lxml.etree._Element
 
     try:
         smer_vetra = stran.xpath(n.VETER["Smer vetra"])[0].text
-    except KeyError:
+    except KeyError as e:
+        logging.warning(f"nisem uspel razbrati podatka o smeri vetra; {e}")
         smer_vetra = None
 
     try:
         hitrost_vetra = stran.xpath(n.VETER["Hitrost vetra"][0])[
             0].text
-    except (KeyError, AttributeError):
+    except (KeyError, AttributeError) as e:
+        logging.warning(f"nisem uspel razbrati podatka o hitrosti vetra; {e}")
         hitrost_vetra = None
-        hitrost_vetra_enota = None
-    else:
-        hitrost_vetra_enota = n.VETER["Hitrost vetra"][1]
 
     try:
         sunki_vetra = stran.xpath(n.VETER["Sunki vetra"][0])[
             0].text
-    except (KeyError, AttributeError):
+    except (KeyError, AttributeError) as e:
+        logging.warning(f"nisem uspel razbrati podatka o sunkih vetra; {e}")
         sunki_vetra = None
-        sunki_vetra_enota = None
-    else:
-        sunki_vetra_enota = n.VETER["Sunki vetra"][1]
 
     return Veter(smer_vetra=smer_vetra,
                  hitrost_vetra=hitrost_vetra,
-                 hitrost_vetra_enota=hitrost_vetra_enota,
-                 sunki_vetra=sunki_vetra,
-                 sunki_vetra_enota=sunki_vetra_enota,
+                 sunki_vetra=sunki_vetra
                  )
 
 
@@ -228,7 +229,9 @@ def onesnaženost_podatki(stran,  # lxml.etree._Element
         try:
             return stran.xpath(
                 f"/arsopodatki/postaja[@sifra='{šifra}']/{i}")[0].text
-        except IndexError:
+        except IndexError as e:
+            logging.warning(
+                f"nisem uspel razbrati podatka o onesnaženosti {i}; {e}")
             return None
 
     def čist_zrak(podatki):

@@ -1,29 +1,28 @@
 #!/usr/bin/env python
 # -*- coding: 'UTF-8' -*-
 
-import logging
 import sqlite3
 from sqlite3 import Error
-
+# import vremenko.beleženje
+import logging
 import vremenko.vreme
 
 
 def poveži_podatkovno(lokacija: str,
-                      logger,
                       ):
     povezava = None
     try:
         povezava = sqlite3.connect(
             lokacija, detect_types=sqlite3.PARSE_DECLTYPES)
-        logger.info("Povezava s podatkovno bazo je bila uspešno vzpostavljena.")
+        logging.info(
+            "Povezava s podatkovno bazo je bila uspešno vzpostavljena.")
     except Error as e:
-        logger.error(f"Prišlo je do napake: {e}")
+        logging.error(f"Prišlo je do napake: {e}")
     return povezava
 
 
 def izvedi_ukaz(povezava,
                 ukaz: str,
-                logger,
                 *vnos: str
                 ):
     kazalec = povezava.cursor()
@@ -33,11 +32,11 @@ def izvedi_ukaz(povezava,
         else:
             kazalec.execute(ukaz)
         povezava.commit()
-        logger.info("Uspešno izveden vnos v podatkovno bazo.")
+        logging.info("Uspešno izveden vnos v podatkovno bazo.")
     except sqlite3.IntegrityError as e:
-        logger.warning(f"Opozorilo: {e}")
+        logging.warning(f"Opozorilo: {e}")
     except Error as e:
-        logger.error(f"Prišlo je do napake: {e}")
+        logging.error(f"Prišlo je do napake: {e}")
 
 
 ustvari_dan = """
@@ -125,9 +124,8 @@ odstrani_znak_onesnaženost = """
 def posodobi_podatkovno(podatkovna: str = "ljubljana-2020-11.db",
                         kraj: str = "Ljubljana",
                         ):
-    logger = logging.getLogger(__name__)
 
-    povezava = poveži_podatkovno(podatkovna, logger)
+    povezava = poveži_podatkovno(podatkovna)
 
     podatki = vremenko.vreme.vremenko_podatki(kraj)
 
@@ -139,13 +137,13 @@ def posodobi_podatkovno(podatkovna: str = "ljubljana-2020-11.db",
             podatki.veter[:3] + podatki.onesnaženost
 
     # tabela dan
-    izvedi_ukaz(povezava, ustvari_dan, logger)
-    izvedi_ukaz(povezava, vnesi_dan, logger, *podatki.dan[:5])
+    izvedi_ukaz(povezava, ustvari_dan)
+    izvedi_ukaz(povezava, vnesi_dan, *podatki.dan[:5])
 
     # tabela vreme
-    izvedi_ukaz(povezava, ustvari_vremenko, logger)
-    izvedi_ukaz(povezava, vnesi_vremenko, logger, *podatki_vreme)
-    izvedi_ukaz(povezava, odstrani_znak_onesnaženost, logger)
+    izvedi_ukaz(povezava, ustvari_vremenko)
+    izvedi_ukaz(povezava, vnesi_vremenko, *podatki_vreme)
+    izvedi_ukaz(povezava, odstrani_znak_onesnaženost)
 
 
 if __name__ == '__main__':
