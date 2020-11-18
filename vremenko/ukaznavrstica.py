@@ -2,6 +2,8 @@
 # -*- coding: 'UTF-8' -*-
 
 import argparse
+import logging
+import vremenko.beleženje
 import vremenko.nastavitve as n
 import vremenko.vreme
 
@@ -22,10 +24,12 @@ def izbira_kraja(KRAJI):
             vnos = int(input(f'Vnesi izbiro: (1-{str(len(moznosti))})\t'))
             if vnos < 1:
                 continue
-        except (ValueError, IndexError):
+        except (ValueError, IndexError) as e:
+            logging.info(f"neveljavna izbira: {e}")
             print('Neveljavna izbira.')
             continue
-        except KeyboardInterrupt:
+        except KeyboardInterrupt as e:
+            logging.info(f"izhod: {e}")
             print('\nIzhod.')
             exit(0)
         else:
@@ -50,11 +54,17 @@ def argumenti():
                         help="podatki za Novo mesto", default=False)
     parser.add_argument("-rs", "--rogaska", action="store_true",
                         help="podatki za Rogaško Slatino", default=False)
+    parser.add_argument("-l", "--log", type=int, default=4,
+                        help="vrsta dnevniških vnosov")
+    parser.add_argument("--dnevnik", type=str,
+                        help="vrsta dnevniških vnosov")
     return parser.parse_args()
 
 
 def main():
     args = argumenti()
+    vremenko.beleženje.beleženje(args.dnevnik, args.log)
+
     if args.izbira:
         naslov = izbira_kraja(n.KRAJI_URL)[1]
         print('')

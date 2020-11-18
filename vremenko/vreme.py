@@ -4,7 +4,6 @@
 from typing import NamedTuple
 from dateutil import tz
 import datetime
-# import vremenko.beleženje
 import logging
 import vremenko.nastavitve as n
 import vremenko.poštar

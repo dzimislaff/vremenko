@@ -2,6 +2,7 @@
 # -*- coding: 'UTF-8' -*-
 
 import logging
+import sys
 
 
 def beleženje(dnevnik: str,
@@ -14,9 +15,15 @@ def beleženje(dnevnik: str,
         2: logging.INFO,
         1: logging.DEBUG
     }
-    logging.basicConfig(format="%(asctime)s %(levelname)s: %(name)s, %(funcName)s: %(message)s",
-                        filename=dnevnik,
-                        # encoding="utf-8",  # python >= 3.9
-                        level=nivoji[nivo_beleženja])
-    logger = logging.getLogger(__name__)
-    return logger
+
+    if dnevnik:
+        logging.basicConfig(format="%(asctime)s %(levelname)s: %(name)s, %(funcName)s: %(message)s",
+                            filename=dnevnik,
+                            # encoding="utf-8",  # python >= 3.9
+                            level=nivoji[nivo_beleženja])
+    else:
+        logging.basicConfig(format="%(asctime)s %(levelname)s: %(name)s, %(funcName)s: %(message)s",
+                            stream=sys.stdout,
+                            level=nivoji[nivo_beleženja])
+
+    return logging.getLogger(__name__)

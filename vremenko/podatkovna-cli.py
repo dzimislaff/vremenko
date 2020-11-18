@@ -20,18 +20,17 @@ def argumenti():
     parser.add_argument("podatkovna", help="podatkovna baza")
     parser.add_argument("kraj", help="kraj")
     parser.add_argument("dnevnik", help="dnevnik")
-    parser.add_argument("-l", "--log", type=int, default=3,
+    parser.add_argument("-l", "--log", type=int, default=4,
                         help="vrsta dnevniških vnosov")
     return parser.parse_args()
 
 
 def main():
     args = argumenti()
-    logger = vremenko.beleženje.beleženje(args.dnevnik, args.log)
+    vremenko.beleženje.beleženje(args.dnevnik, args.log)
     vremenko.podatkovna.posodobi_podatkovno(args.podatkovna,
                                             args.kraj,
                                             )
-    logger.info("Program se je uspešno izvedel.")
 
 
 if __name__ == '__main__':
