@@ -3,8 +3,8 @@
 
 import sqlite3
 from sqlite3 import Error
-# import vremenko.beleženje
 import logging
+import time
 import vremenko.vreme
 
 
@@ -13,7 +13,8 @@ def poveži_podatkovno(lokacija: str,
     povezava = None
     try:
         povezava = sqlite3.connect(
-            lokacija, detect_types=sqlite3.PARSE_DECLTYPES)
+            # lokacija, detect_types=sqlite3.PARSE_DECLTYPES | sqlite3.PARSE_COLNAMES)
+            lokacija)
         logging.info(
             "Povezava s podatkovno bazo je bila uspešno vzpostavljena.")
     except Error as e:
@@ -41,31 +42,30 @@ def izvedi_ukaz(povezava,
 
 ustvari_dan = """
     CREATE TABLE IF NOT EXISTS dan (id INTEGER PRIMARY KEY,
-        datum DATE,
-        vzhod TEXT,
-        zahod TEXT,
-        dolžina_dneva TEXT,
+        vzhod INTEGER,
+        zahod INTEGER,
+        dolžina_dneva INTEGER,
         zaporedni_v_letu INTEGER,
-        unique (datum)
+        unique (vzhod)
     )
 """
 
 vnesi_dan = """
     INSERT INTO
         dan (
-            datum,
+            -- datum,
             vzhod,
             zahod,
             dolžina_dneva,
             zaporedni_v_letu
         )
-    VALUES (?,?,?,?,?)
+    VALUES (?,?,?,?)
 """
 
-ustvari_vremenko = """
+ustvari_vreme = """
     CREATE TABLE IF NOT EXISTS vreme (id INTEGER PRIMARY KEY,
-        ura TEXT,
-        datum DATE,
+        -- čas DATETIME,
+        čas INTEGER,
         opis_vremena TEXT,
         temperatura INTEGER,  -- °C
         relativna_vlaga INTEGER,  -- %
@@ -75,23 +75,14 @@ ustvari_vremenko = """
         smer_vetra TEXT,
         hitrost_vetra INTEGER,  -- m/s
         sunki_vetra INTEGER,  -- m/s
-        pm10 INTEGER,  -- µg/m³
-        so2 INTEGER,  -- µg/m³
-        co INTEGER,  -- mg/m³
-        o3 INTEGER,  -- µg/m³
-        no2 INTEGER,  -- µg/m³
-        opozorilo BOOLEAN NOT NULL CHECK (opozorilo IN (0,1)),
-        unique (ura, datum),
-        FOREIGN KEY (datum)
-            REFERENCES dan (datum)
+        unique (čas)
     )
 """
 
-vnesi_vremenko = """
+vnesi_vreme = """
     INSERT INTO
         vreme (
-            ura,
-            datum,
+            čas,
             opis_vremena,
             temperatura,
             relativna_vlaga,
@@ -100,7 +91,28 @@ vnesi_vremenko = """
             vsota_padavin,
             smer_vetra,
             hitrost_vetra,
-            sunki_vetra,
+            sunki_vetra
+        )
+    VALUES (?,?,?,?,?,?,?,?,?,?)
+"""
+
+ustvari_onesnaženost = """
+    CREATE TABLE IF NOT EXISTS onesnaženost (id INTEGER PRIMARY KEY,
+        čas INTEGER,
+        pm10 INTEGER,  -- µg/m³
+        so2 INTEGER,  -- µg/m³
+        co INTEGER,  -- mg/m³
+        o3 INTEGER,  -- µg/m³
+        no2 INTEGER,  -- µg/m³
+        opozorilo BOOLEAN NOT NULL CHECK (opozorilo IN (0,1)),
+        unique (čas)
+    )
+"""
+
+vnesi_onesnaženost = """
+    INSERT INTO
+        onesnaženost (
+            čas,
             pm10,
             so2,
             co,
@@ -108,11 +120,11 @@ vnesi_vremenko = """
             no2,
             opozorilo
         )
-    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+    VALUES (?,?,?,?,?,?,?)
 """
 
 odstrani_znak_onesnaženost = """
-    UPDATE vreme
+    UPDATE onesnaženost
     SET pm10 = trim(pm10, '<'),
         so2 = trim(so2, '<'),
         co = trim(co, '<'),
@@ -120,30 +132,40 @@ odstrani_znak_onesnaženost = """
         no2 = trim(no2, '<');
 """
 
+def pretvori_unixepoch(dtm):
+    return time.mktime(dtm.timetuple())
 
-def posodobi_podatkovno(podatkovna: str = "ljubljana-2020-11.db",
-                        kraj: str = "Ljubljana",
+
+def posodobi_podatkovno(podatkovna: str,  # "ljubljana-2020-11.db"
+                        kraj: str  # "Ljubljana"
                         ):
 
     povezava = poveži_podatkovno(podatkovna)
 
     podatki = vremenko.vreme.vremenko_podatki(kraj)
 
-    if not podatki.onesnaženost:
-        podatki_vreme = podatki.vreme[:8] + \
-            podatki.veter[:3] + tuple([0 for i in range(6)])
-    else:
-        podatki_vreme = podatki.vreme[:8] + \
-            podatki.veter[:3] + podatki.onesnaženost
-
     # tabela dan
-    izvedi_ukaz(povezava, ustvari_dan)
-    izvedi_ukaz(povezava, vnesi_dan, *podatki.dan[:5])
+    if podatki.dan:
+        dan = [pretvori_unixepoch(i) for i in podatki.dan[:2]]
+        dan.append(podatki.dan.dolžina_dneva.total_seconds())
+        dan.append(podatki.dan.zaporedni_v_letu)
+        izvedi_ukaz(povezava, ustvari_dan)
+        izvedi_ukaz(povezava, vnesi_dan, *dan)
 
     # tabela vreme
-    izvedi_ukaz(povezava, ustvari_vremenko)
-    izvedi_ukaz(povezava, vnesi_vremenko, *podatki_vreme)
-    izvedi_ukaz(povezava, odstrani_znak_onesnaženost)
+    if podatki.vreme:
+        podatki_vreme = list(podatki.vreme[:7] + podatki.veter[:3])
+        podatki_vreme[0] = time.mktime(podatki_vreme[0].timetuple())
+        izvedi_ukaz(povezava, ustvari_vreme)
+        izvedi_ukaz(povezava, vnesi_vreme, *podatki_vreme)
+
+    # tabela onesnaženost
+    if podatki.onesnaženost:
+        onesnaženost = list(podatki.onesnaženost)
+        onesnaženost[0] = pretvori_unixepoch(onesnaženost[0])
+        izvedi_ukaz(povezava, ustvari_onesnaženost)
+        izvedi_ukaz(povezava, vnesi_onesnaženost, *onesnaženost)
+        izvedi_ukaz(povezava, odstrani_znak_onesnaženost)
 
 
 if __name__ == '__main__':

@@ -10,8 +10,7 @@ import vremenko.poštar
 
 
 class Vreme(NamedTuple):
-    ura: str
-    datum: datetime.date
+    čas: datetime.date
     opis_vremena: str
     temperatura: str
     relativna_vlaga: str
@@ -34,6 +33,8 @@ class Veter(NamedTuple):
 
 
 class Onesnaženost(NamedTuple):
+    # ura: datetime.time
+    čas: datetime.datetime
     pm10: str
     so2: str
     co: str
@@ -43,18 +44,10 @@ class Onesnaženost(NamedTuple):
 
 
 class Dan(NamedTuple):
-    datum: datetime.date
-    vzhod: str
-    zahod: str
+    vzhod: datetime.date
+    zahod: datetime.date
     dolžina_dneva: str
     zaporedni_v_letu: int
-    datum_izpis: str
-
-
-class Čas(NamedTuple):
-    datum: str
-    ura: str
-    dtm: datetime.datetime
 
 
 class Podatki(NamedTuple):
@@ -85,12 +78,12 @@ def vreme_podatki(stran  # lxml.etree._Element
     # temperatura, rel. vlaga, tlak, povprečno sončno obsevanje, vsota padavin
     kategorije = tuple(n.VREME.keys())[1:]
 
-    try:  # ura
-        dtm = čas_uredi(stran.xpath("/data/metData/tsValid_issued")[0].text)
-        vrednosti = [dtm.ura, dtm.dtm.date()]
+    try:  # čas
+        vrednosti = [čas_uredi(stran.xpath(
+            "/data/metData/tsValid_issued")[0].text)]
     except KeyError as e:
-        logging.warning(f"nisem uspel razbrati podatka o uri; {e}")
-        vrednosti = [None, None]
+        logging.warning(f"nisem uspel razbrati podatka o datumu in uri; {e}")
+        vrednosti = [None]
 
     try:  # opis vremena
         vrednosti.append(n.OPIS_BAZA[stran.xpath(
@@ -122,8 +115,8 @@ def vreme_izpis(vreme: Vreme,
     if vreme is None:
         return "Podatkov o vremenu trenutno ni. "
 
-    if vreme.ura:
-        izpis = f"Podatki za {n.KRAJI_SKLONI[kraj]} ob {vreme.ura}.\n"
+    if vreme.čas:
+        izpis = f"Podatki za {n.KRAJI_SKLONI[kraj]} ob {ura_izpis(vreme.čas)}.\n"
     else:
         izpis = f"Podatki za {n.KRAJI_SKLONI[kraj]}.\n"
 
@@ -242,7 +235,10 @@ def onesnaženost_podatki(stran,  # lxml.etree._Element
             pass
         return False
 
-    onesnaženost = [vnesi(i) for i in kategorije]
+    onesnaženost = [čas_uredi(stran.xpath(
+        f"/arsopodatki/postaja[@sifra='{šifra}']/datum_do")[0].text)]
+
+    onesnaženost += [vnesi(i) for i in kategorije]
     zrak = čist_zrak(onesnaženost)
     onesnaženost.append(zrak)
 
@@ -262,7 +258,7 @@ def onesnaženost_izpis(onesnaženost: Onesnaženost,
     if onesnaženost.opozorilo:
         izpis += "POZOR! Zrak je onesnažen.\n"
 
-    for i in range(5):
+    for i in range(1, 5):
         if not onesnaženost[i]:
             continue
         izpis += (f"{onesnaženost._fields[i].upper()}: "
@@ -272,36 +268,33 @@ def onesnaženost_izpis(onesnaženost: Onesnaženost,
     return izpis.rstrip()
 
 
-def čas_uredi(niz: str  # "06.04.2020 19:38 CEST"
-              ) -> Čas:
-    """
-    zahteve: typing.NamedTuple
-    """
-    if type(niz) != str:
-        return Čas(None, None, None)
-    elif not (19 <= len(niz) <= 21):
-        return Čas(None, None, None)
+def ura_izpis(dtm):
+    return dtm.time().strftime("%H.%M").lstrip("0")
 
-    x = niz.split(" ")[:-1]
-    ura = x[1].replace(":", ".")
-    datum = x[0].split(".")
-    for i in range(len(datum)):
-        datum[i] = datum[i].lstrip("0")
-    # datetime.time
-    cifre_datum = [int(i) for i in datum]
-    cifre_ura = x[1].split(":")
+
+def datum_izpis(dtm):
+    return dtm.date().strftime("%-d. %-m. %Y")
+
+
+def čas_uredi(niz: str  # "06.04.2020 19:38 CEST"
+              ) -> datetime.datetime:
+    # onesnaženost = "2020-11-18 17:00"
+    # xml_pozimi = "19.11.2020 18:00 CET"
+    # xml_poleti = "06.04.2020 19:38 CEST"
+
+    if type(niz) != str:
+        return None
+    elif not (16 <= len(niz) <= 21):
+        return None
+
     slo_časovni_pas = tz.gettz("Europe/Ljubljana")
-    dtm = datetime.datetime(cifre_datum[2],
-                            cifre_datum[1],
-                            cifre_datum[0],
-                            int(cifre_ura[0]),
-                            int(cifre_ura[1]),
-                            tzinfo=slo_časovni_pas
-                            )
-    return Čas(datum=". ".join(datum),  # "1. 4. 2020"
-               ura=ura,                 # "6.41"
-               dtm=dtm,                 # datetime.datetime(2020, 4, 1, 6, 41)
-               )
+
+    niz = niz.rstrip(" CEST").rstrip(" CET")
+    if "." in niz:
+        dtm = datetime.datetime.strptime(niz, "%d.%m.%Y %H:%M")
+    else:
+        dtm = datetime.datetime.strptime(niz, "%Y-%m-%d %H:%M")
+    return dtm.replace(tzinfo=slo_časovni_pas)
 
 
 def dan_podatki(stran  # lxml.etree._Element
@@ -315,27 +308,16 @@ def dan_podatki(stran  # lxml.etree._Element
     vzhod = čas_uredi(stran.xpath("/data/metData/sunrise")[0].text)
     zahod = čas_uredi(stran.xpath("/data/metData/sunset")[0].text)
 
-    if vzhod and zahod == (None, None, None):
+    if not vzhod:
         return None
 
-    # <class "list">: ["2020", "04", "01"]
-    x = stran.xpath(
-        "/data/metData/sunrise")[0].text.split(" ")[0].split(".")[::-1]
-    datum = datetime.date(int(x[0]), int(x[1]), int(x[2]))
-    zaporedni_v_letu = vzhod.dtm.timetuple().tm_yday
-    datum_izpis = ". ".join(i.lstrip("0") for i in x[::-1])
-    dolžina_dneva = zahod.dtm - vzhod.dtm
-    dolž_dneva_ure = str(int(dolžina_dneva.total_seconds() // 3600))
-    dolž_dneva_min = str(int(dolžina_dneva.total_seconds() % 3600) // 60)
-    if len(dolž_dneva_min) == 1:
-        dolž_dneva_min = f"0{dolž_dneva_min}"
-    dolžina_dneva = f"{dolž_dneva_ure}.{dolž_dneva_min}"
-    return Dan(datum=vzhod.dtm.date(),
-               vzhod=vzhod.ura,
-               zahod=zahod.ura,
+    dolžina_dneva = zahod - vzhod
+    zaporedni_v_letu = vzhod.timetuple().tm_yday
+
+    return Dan(vzhod=vzhod,
+               zahod=zahod,
                dolžina_dneva=dolžina_dneva,
-               zaporedni_v_letu=zaporedni_v_letu,
-               datum_izpis=datum_izpis
+               zaporedni_v_letu=zaporedni_v_letu
                )
 
 
@@ -349,9 +331,9 @@ def dan_izpis(dan: Dan
     elif dan == (None, None, None):
         return None
 
-    izpis = (f"Danes je {dan.datum_izpis}, tj. {dan.zaporedni_v_letu}. dan v "
-             f"letu. Sončni vzhod je ob {dan.vzhod}, zahod ob {dan.zahod}, "
-             f"dan traja {dan.dolžina_dneva}.")
+    izpis = (f"Danes je {datum_izpis(dan.vzhod)}, tj. {dan.zaporedni_v_letu}. dan v "
+             f"letu. Sončni vzhod je ob {ura_izpis(dan.vzhod)}, zahod ob {ura_izpis(dan.zahod)}, "
+             f"dan traja {str(dan.dolžina_dneva)[:-3]}.")
     return izpis
 
 

@@ -21,9 +21,12 @@ slo_časovni_pas = tz.gettz("Europe/Ljubljana")
     (None, None, None, None),
 ]
 
-@pytest.mark.parametrize('čas, datum, ura, dtm', časi)
-def test_čas_uredi(čas, datum, ura, dtm):
-    polica = vremenko.vreme.čas_uredi(čas)
-    assert polica.datum == datum
-    assert polica.ura == ura
-    assert polica.dtm == dtm
+@pytest.mark.parametrize('niz, datum, ura, dtm', časi)
+def test_čas_uredi(niz, datum, ura, dtm):
+    polica = vremenko.vreme.čas_uredi(niz)
+    # assert polica.datum == datum
+    # assert polica.ura == ura
+    assert polica == dtm
+    if polica:
+        assert polica.date().strftime("%-d. %-m. %Y") == datum
+        assert polica.time().strftime("%H.%M") == ura
