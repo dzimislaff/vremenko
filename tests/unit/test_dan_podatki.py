@@ -13,7 +13,7 @@ kraji = vremenko.nastavitve.KRAJI_URL.keys()
 
 @pytest.mark.parametrize('kraj', kraji)
 def test_dan_podatki(kraj):
-    stran = vremenko.poštar.pridobi_vremenske_podatke(n.KRAJI_URL[kraj])
+    stran = vremenko.poštar.pridobi_xml(n.KRAJI_URL[kraj])
     podatki = vremenko.vreme.dan_podatki(stran)
 
     assert type(podatki.vzhod) == datetime.datetime
