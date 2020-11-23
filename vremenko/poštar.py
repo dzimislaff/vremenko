@@ -12,7 +12,7 @@ def pridobi_spletno_stran(naslov):
         return None
 
 
-def pridobi_vremenske_podatke(naslov):
+def pridobi_xml(naslov):
     r = pridobi_spletno_stran(naslov)
     if r:
         stran = lxml.etree.fromstring(bytes(r.text, encoding='utf8'))

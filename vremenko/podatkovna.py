@@ -5,39 +5,8 @@ import sqlite3
 from sqlite3 import Error
 import logging
 import time
-import vremenko.vreme
-
-
-def poveži_podatkovno(lokacija: str,
-                      ):
-    povezava = None
-    try:
-        povezava = sqlite3.connect(
-            # lokacija, detect_types=sqlite3.PARSE_DECLTYPES | sqlite3.PARSE_COLNAMES)
-            lokacija)
-        logging.info(
-            "Povezava s podatkovno bazo je bila uspešno vzpostavljena.")
-    except Error as e:
-        logging.error(f"Prišlo je do napake: {e}")
-    return povezava
-
-
-def izvedi_ukaz(povezava,
-                ukaz: str,
-                *vnos: str
-                ):
-    kazalec = povezava.cursor()
-    try:
-        if vnos:
-            kazalec.execute(ukaz, vnos)
-        else:
-            kazalec.execute(ukaz)
-        povezava.commit()
-        logging.info("Uspešno izveden vnos v podatkovno bazo.")
-    except sqlite3.IntegrityError as e:
-        logging.warning(f"Opozorilo: {e}")
-    except Error as e:
-        logging.error(f"Prišlo je do napake: {e}")
+from vremenko.nastavitve import OPIS_VREMENA, VETER_IZPIS
+from vremenko.vreme import vremenko_podatki
 
 
 ustvari_dan = """
@@ -53,7 +22,6 @@ ustvari_dan = """
 vnesi_dan = """
     INSERT INTO
         dan (
-            -- datum,
             vzhod,
             zahod,
             dolžina_dneva,
@@ -64,15 +32,14 @@ vnesi_dan = """
 
 ustvari_vreme = """
     CREATE TABLE IF NOT EXISTS vreme (id INTEGER PRIMARY KEY,
-        -- čas DATETIME,
         čas INTEGER,
-        opis_vremena TEXT,
+        opis_vremena INTEGER,
         temperatura INTEGER,  -- °C
         relativna_vlaga INTEGER,  -- %
         tlak INTEGER,  -- hPa
         sončno_obsevanje INTEGER,  -- W/m2
         vsota_padavin INTEGER,  -- mm
-        smer_vetra TEXT,
+        smer_vetra INTEGER,
         hitrost_vetra INTEGER,  -- m/s
         sunki_vetra INTEGER,  -- m/s
         unique (čas)
@@ -132,6 +99,39 @@ odstrani_znak_onesnaženost = """
         no2 = trim(no2, '<');
 """
 
+
+def poveži_podatkovno(lokacija: str,
+                      ):
+    povezava = None
+    try:
+        povezava = sqlite3.connect(
+            # lokacija, detect_types=sqlite3.PARSE_DECLTYPES | sqlite3.PARSE_COLNAMES)
+            lokacija)
+        logging.info(
+            "Povezava s podatkovno bazo je bila uspešno vzpostavljena.")
+    except Error as e:
+        logging.error(f"Prišlo je do napake: {e}")
+    return povezava
+
+
+def izvedi_ukaz(povezava,
+                ukaz: str,
+                *vnos: str
+                ):
+    kazalec = povezava.cursor()
+    try:
+        if vnos:
+            kazalec.execute(ukaz, vnos)
+        else:
+            kazalec.execute(ukaz)
+        povezava.commit()
+        logging.info("Uspešno izveden vnos v podatkovno bazo.")
+    except sqlite3.IntegrityError as e:
+        logging.warning(f"Opozorilo: {e}")
+    except Error as e:
+        logging.error(f"Prišlo je do napake: {e}")
+
+
 def pretvori_unixepoch(dtm):
     return time.mktime(dtm.timetuple())
 
@@ -142,7 +142,7 @@ def posodobi_podatkovno(podatkovna: str,  # "ljubljana-2020-11.db"
 
     povezava = poveži_podatkovno(podatkovna)
 
-    podatki = vremenko.vreme.vremenko_podatki(kraj)
+    podatki = vremenko_podatki(kraj)
 
     # tabela dan
     if podatki.dan:
@@ -156,6 +156,9 @@ def posodobi_podatkovno(podatkovna: str,  # "ljubljana-2020-11.db"
     if podatki.vreme:
         podatki_vreme = list(podatki.vreme[:7] + podatki.veter[:3])
         podatki_vreme[0] = time.mktime(podatki_vreme[0].timetuple())
+        if podatki_vreme[1]:
+            podatki_vreme[1] = list(OPIS_VREMENA.keys()).index(podatki_vreme[1])
+        podatki_vreme[7] = VETER_IZPIS.index(podatki_vreme[7])
         izvedi_ukaz(povezava, ustvari_vreme)
         izvedi_ukaz(povezava, vnesi_vreme, *podatki_vreme)
 

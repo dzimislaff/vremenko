@@ -3,9 +3,10 @@
 
 import argparse
 import logging
+import __version__
 import vremenko.beleženje
-import vremenko.nastavitve as n
 import vremenko.vreme
+from vremenko.nastavitve import KRAJI_URL
 
 
 def izbira_kraja(KRAJI):
@@ -15,7 +16,7 @@ def izbira_kraja(KRAJI):
     - s polno povezavo (osnova + končnica),
     - z imenom kraja (npr. 'Metlika').
     '''
-    moznosti = list(n.KRAJI_URL.keys())
+    moznosti = list(KRAJI_URL.keys())
     while True:
         print('\nPodatki za kraje, ki so na voljo:')
         for i in range(len(moznosti)):
@@ -34,7 +35,7 @@ def izbira_kraja(KRAJI):
             exit(0)
         else:
             break
-    return [n.KRAJI_URL[(moznosti[vnos - 1])], moznosti[vnos - 1]]
+    return [KRAJI_URL[(moznosti[vnos - 1])], moznosti[vnos - 1]]
 
 
 def argumenti():
@@ -44,6 +45,7 @@ def argumenti():
     parser = argparse.ArgumentParser(
         description="Preprost program, ki izpiše trenutne vremenske razmere.\
                     Podatke pridobi z ARSO-ve spletne strani.",
+        prog="vremenko",
         # epilog="Primer rabe:"
     )
     parser.add_argument("-i", "--izbira", action="store_true",
@@ -58,6 +60,9 @@ def argumenti():
                         help="vrsta dnevniških vnosov")
     parser.add_argument("--dnevnik", type=str,
                         help="vrsta dnevniških vnosov")
+    parser.add_argument('--version', action='version',
+                        version='%(prog)s {version}'.format(
+                            version=__version__.__version__))
     return parser.parse_args()
 
 
@@ -66,7 +71,7 @@ def main():
     vremenko.beleženje.beleženje(args.dnevnik, args.log)
 
     if args.izbira:
-        naslov = izbira_kraja(n.KRAJI_URL)[1]
+        naslov = izbira_kraja(KRAJI_URL)[1]
         print('')
     elif args.novomesto:
         naslov = "Novo mesto"

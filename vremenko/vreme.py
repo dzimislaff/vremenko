@@ -33,7 +33,6 @@ class Veter(NamedTuple):
 
 
 class Onesnaženost(NamedTuple):
-    # ura: datetime.time
     čas: datetime.datetime
     pm10: str
     so2: str
@@ -59,12 +58,26 @@ class Podatki(NamedTuple):
 
 def preveri_dostopnost_podatkov(stran  # lxml.etree._Element
                                 ) -> bool:
-    if stran is False:
-        return False
-    elif len(stran.xpath('/data/metData')) == 0:
+    if not len(stran):
         return False
     else:
         return True
+
+
+def razberi_podatke(kategorija, xpath, stran):
+    try:
+        return stran.xpath(xpath[kategorija])[0].text
+    except ValueError as e:
+        logging.warning(f"nisem uspel razbrati podatka: {kategorija}; {e}")
+        return None
+
+
+def razberi_čas(xpath, stran):
+    try:
+        return čas_uredi(stran.xpath(xpath)[0].text)
+    except KeyError as e:
+        logging.warning(f"nisem uspel razbrati podatka o datumu in uri; {e}")
+        return None
 
 
 def vreme_podatki(stran  # lxml.etree._Element
@@ -75,30 +88,10 @@ def vreme_podatki(stran  # lxml.etree._Element
     if not preveri_dostopnost_podatkov(stran):
         return None
 
-    # temperatura, rel. vlaga, tlak, povprečno sončno obsevanje, vsota padavin
-    kategorije = tuple(n.VREME.keys())[1:]
-
-    try:  # čas
-        vrednosti = [čas_uredi(stran.xpath(
-            "/data/metData/tsValid_issued")[0].text)]
-    except KeyError as e:
-        logging.warning(f"nisem uspel razbrati podatka o datumu in uri; {e}")
-        vrednosti = [None]
-
-    try:  # opis vremena
-        vrednosti.append(n.OPIS_BAZA[stran.xpath(
-            n.VREME["Opis vremena"])[0].text])
-    except KeyError as e:
-        logging.warning(f"nisem uspel razbrati podatka o opisu vremena; {e}")
-        vrednosti.append(None)
-
-    for kategorija in kategorije:  # temp., rel. vlaga, tlak, son. obs., pad.
-        try:
-            vrednosti.append(stran.xpath(n.VREME[kategorija][0])[0].text)
-        except KeyError as e:
-            logging.warning(
-                f"nisem uspel razbrati podatka o kategoriji: {kategorija}; {e}")
-            vrednosti.append(None)
+    kategorije = tuple(n.XPATH_VREME.keys())
+    vrednosti = [razberi_podatke(kategorija, n.XPATH_VREME, stran)
+                 for kategorija in kategorije]
+    vrednosti.insert(0, razberi_čas(n.XPATH_ČAS, stran))
 
     if not any(vrednosti):
         return None
@@ -120,8 +113,8 @@ def vreme_izpis(vreme: Vreme,
     else:
         izpis = f"Podatki za {n.KRAJI_SKLONI[kraj]}.\n"
 
-    if vreme.opis_vremena:
-        izpis += f"{n.OPIS_IZPIS[vreme.opis_vremena]}. "
+    if vreme.opis_vremena or vreme.opis_vremena == 0:
+        izpis += f"{n.OPIS_VREMENA[vreme.opis_vremena][1]}. "
 
     if vreme.temperatura:
         izpis += (f"Temperatura zraka je "
@@ -159,30 +152,14 @@ def veter_podatki(stran  # lxml.etree._Element
     if not preveri_dostopnost_podatkov(stran):
         return None
 
-    try:
-        smer_vetra = stran.xpath(n.VETER["Smer vetra"])[0].text
-    except KeyError as e:
-        logging.warning(f"nisem uspel razbrati podatka o smeri vetra; {e}")
-        smer_vetra = None
+    kategorije = tuple(n.XPATH_VETER.keys())
+    vrednosti = [razberi_podatke(kategorija, n.XPATH_VETER, stran)
+                 for kategorija in kategorije]
 
-    try:
-        hitrost_vetra = stran.xpath(n.VETER["Hitrost vetra"][0])[
-            0].text
-    except (KeyError, AttributeError) as e:
-        logging.warning(f"nisem uspel razbrati podatka o hitrosti vetra; {e}")
-        hitrost_vetra = None
-
-    try:
-        sunki_vetra = stran.xpath(n.VETER["Sunki vetra"][0])[
-            0].text
-    except (KeyError, AttributeError) as e:
-        logging.warning(f"nisem uspel razbrati podatka o sunkih vetra; {e}")
-        sunki_vetra = None
-
-    return Veter(smer_vetra=smer_vetra,
-                 hitrost_vetra=hitrost_vetra,
-                 sunki_vetra=sunki_vetra
-                 )
+    if not any(vrednosti):
+        return None
+    else:
+        return Veter(*vrednosti)
 
 
 def veter_izpis(veter: Veter
@@ -215,9 +192,7 @@ def onesnaženost_podatki(stran,  # lxml.etree._Element
     if stran is None:
         return None
 
-    šifra = šifre[kraj]
-
-    def vnesi(i):
+    def vnesi(i, šifra):
         try:
             return stran.xpath(
                 f"/arsopodatki/postaja[@sifra='{šifra}']/{i}")[0].text
@@ -227,20 +202,21 @@ def onesnaženost_podatki(stran,  # lxml.etree._Element
             return None
 
     def čist_zrak(podatki):
-        try:
-            for i, j in zip(podatki, kategorije):
+        for i, j in zip(podatki, kategorije):
+            try:
                 if int(float(i.lstrip("<"))) >= int(kategorije[j][1]):
                     return True  # opozorilo, da je zrak onesnažen
-        except AttributeError:
-            pass
+            except AttributeError:
+                pass
         return False
 
-    onesnaženost = [čas_uredi(stran.xpath(
-        f"/arsopodatki/postaja[@sifra='{šifra}']/datum_do")[0].text)]
+    šifra = šifre[kraj]
+    onesnaženost = [vnesi(i, šifra) for i in kategorije]
+    onesnaženost.append(čist_zrak(onesnaženost))
 
-    onesnaženost += [vnesi(i) for i in kategorije]
-    zrak = čist_zrak(onesnaženost)
-    onesnaženost.append(zrak)
+    # štempljanje časa
+    xpath = f"/arsopodatki/postaja[@sifra='{šifra}']/datum_do"
+    onesnaženost.insert(0, razberi_čas(xpath, stran))
 
     return Onesnaženost(*onesnaženost)
 
@@ -258,7 +234,7 @@ def onesnaženost_izpis(onesnaženost: Onesnaženost,
     if onesnaženost.opozorilo:
         izpis += "POZOR! Zrak je onesnažen.\n"
 
-    for i in range(1, 5):
+    for i in range(1, 6):
         if not onesnaženost[i]:
             continue
         izpis += (f"{onesnaženost._fields[i].upper()}: "
@@ -328,12 +304,11 @@ def dan_izpis(dan: Dan
     """
     if dan is None:
         return None
-    elif dan == (None, None, None):
-        return None
 
-    izpis = (f"Danes je {datum_izpis(dan.vzhod)}, tj. {dan.zaporedni_v_letu}. dan v "
-             f"letu. Sončni vzhod je ob {ura_izpis(dan.vzhod)}, zahod ob {ura_izpis(dan.zahod)}, "
-             f"dan traja {str(dan.dolžina_dneva)[:-3]}.")
+    izpis = (f"Danes je {datum_izpis(dan.vzhod)}, tj. {dan.zaporedni_v_letu}. "
+             f"dan v letu. Sončni vzhod je ob {ura_izpis(dan.vzhod)}, "
+             f"zahod ob {ura_izpis(dan.zahod)}, dan traja "
+             f"{str(dan.dolžina_dneva)[:-3].replace(':', '.')}.")
     return izpis
 
 
@@ -357,11 +332,9 @@ def vremenko_podatki(kraj: str = "Ljubljana"
     osrednja funkcija, ki pridobi podatke o vremenu (vreme, veter, dan,
     onesnaženost)
     """
-    stran_vreme = vremenko.poštar.pridobi_vremenske_podatke(
-        n.KRAJI_URL[kraj])
-    if kraj in ("Ljubljana", "Maribor", "Celje", "Murska Sobota", "Koper",
-                "Nova Gorica", "Trbovlje", "Zagorje"):
-        stran_onesnaženost = vremenko.poštar.pridobi_vremenske_podatke(n.ZRAK)
+    stran_vreme = vremenko.poštar.pridobi_xml(n.KRAJI_URL[kraj])
+    if kraj in n.ZRAK_ŠIFRE.keys():
+        stran_onesnaženost = vremenko.poštar.pridobi_xml(n.ZRAK)
     else:
         stran_onesnaženost = None
 

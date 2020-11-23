@@ -5,7 +5,6 @@ BAZA = ('http://meteo.arso.gov.si/uploads/probase/www/observ/surface/text/sl/'
         'observationAms_')
 ZRAK = 'http://www.arso.gov.si/xml/zrak/ones_zrak_urni_podatki_zadnji.xml'
 
-
 # slovar s kombinacijo povezav: osnova + končnica
 KRAJI_URL = {
     'Ljubljana': (BAZA + 'LJUBL-ANA_BEZIGRAD_latest.xml'),
@@ -49,87 +48,78 @@ KRAJI_SKLONI = {
     'Kredarica (2514 m)': 'Kredarico',
 }
 
-# slovar z imenom kategorije in xpathom do podatka v XML-datoteki in enoto
-VETER = {
-    'Smer vetra': ('/data/metData/ddavg_longText'),
-    'Hitrost vetra': ('/data/metData/ffavg_val', 'm/s'),
-    'Sunki vetra': ('/data/metData/ffmax_val_kmh', 'm/s'),
+# slovarja z imenom kategorije in xpathom do podatka v XML-datoteki
+XPATH_VREME = {
+    'Opis vremena': '/data/metData/nn_icon-wwsyn_icon',
+    'Temperatura': '/data/metData/t',
+    'Relativna vlaga': '/data/metData/rh',
+    'Tlak': '/data/metData/mslavg',
+    'Povprečno sončno obsevanje': '/data/metData/gSunRadavg',
+    'Vsota padavin': '/data/metData/rr_val',
 }
 
-
-# slovar z imenom kategorije in xpathom do podatka v XML-datoteki in enoto
-VREME = {
-    'Opis vremena': ('/data/metData/nn_icon-wwsyn_icon'),
-    'Temperatura': ('/data/metData/t', '°C'),
-    'Relativna vlaga': ('/data/metData/rh', '%'),
-    'Tlak': ('/data/metData/mslavg', 'hPa'),
-    'Povprečno sončno obsevanje': ('/data/metData/gSunRadavg', 'W/m2'),
-    'Vsota padavin': ('/data/metData/rr_val', 'mm'),
+XPATH_VETER = {
+    'Smer vetra': '/data/metData/ddavg_longText',
+    'Hitrost vetra': '/data/metData/ffavg_val',
+    'Sunki vetra': '/data/metData/ffmax_val_kmh',
 }
 
-
-# slovar s prevodom vremenskih oznak za podatkovno bazo
-OPIS_BAZA = {
-    'clear': 'jasno',
-    'mostClear': 'pretežno jasno',
-    'slightCloudy': 'rahlo oblačno',
-    'partCloudy': 'delno oblačno',
-    'modCloudy': 'zmerno oblačno',
-    'prevCloudy': 'pretežno oblačno',
-    'overcast': 'oblačno',
-    'FG': 'megla',
-    'RA': 'rosenje',
-    'RASN': 'dež s snegom',
-    'SN': 'sneženje',
-    'TS': 'nevihta',
-    'TSGR': 'nevihta s točo',
-    'lightRA': 'rahel dež',
-    'modRA': 'dež',
-    'overcast_lightRA': 'oblačno z manjšimi padavinami',
-    'overcast_modRA': 'oblačno z zmernimi padavinami',
-    'overcast_heavyRA': 'oblačno z močnimi padavinami',
-    'prevCloudy_lightRA': 'pretežno oblačno z manjšimi padavinami',
-    'overcast_lightSN': 'oblačno z manjšim sneženjem',
-}
-
+XPATH_ČAS = "/data/metData/tsValid_issued"
 
 # slovar s prevodom vremenskih oznak za izpis
-OPIS_IZPIS = {
-    'jasno': 'Jasno je',
-    'pretežno jasno': 'Pretežno jasno je',
-    'rahlo oblačno': 'Rahlo oblačno je',
-    'delno oblačno': 'Delno oblačno je',
-    'zmerno oblačno': 'Zmerno oblačno je',
-    'pretežno oblačno': 'Pretežno oblačno je',
-    'oblačno': 'Oblačno je',
-    'megla': 'Megla je',
-    'rosenje': 'Rosi',
-    'dež s snegom': 'Dež s snegom je',
-    'sneženje': 'Sneži',
-    'nevihta': 'Nevihta je',
-    'nevihta s točo': 'Nevihta s točo je',
-    'rahel dež': 'Rahlo dežuje',
-    'dež': 'Dežuje',
-    'oblačno z manjšimi padavinami': 'Oblačno je z manjšimi padavinami',
-    'oblačno z zmernimi padavinami': 'Oblačno je z zmernimi padavinami',
-    'oblačno z močnimi padavinami': 'Oblačno je z močnimi padavinami',
-    'pretežno oblačno z manjšimi padavinami': 'Pretežno oblačno je z manjšimi padavinami',
-    'oblačno z manjšim sneženjem': 'Oblačno z manjšim sneženjem',
+OPIS_VREMENA = {
+    None: None,
+    'clear': ('jasno', 'Jasno je'),
+    'mostClear': ('pretežno jasno', 'Pretežno jasno je'),
+    'slightCloudy': ('rahlo oblačno', 'Rahlo oblačno je'),
+    'partCloudy': ('delno oblačno', 'Delno oblačno je'),
+    'modCloudy': ('zmerno oblačno', 'Zmerno oblačno je'),
+    'prevCloudy': ('pretežno oblačno', 'Pretežno oblačno je'),
+    'overcast': ('oblačno', 'Oblačno je'),
+    'FG': ('megla', 'Megla je'),
+    'RA': ('rosenje', 'Rosi'),
+    'RASN': ('dež s snegom', 'Dež s snegom je'),
+    'SN': ('sneženje', 'Sneži'),
+    'TS': ('nevihta', 'Nevihta je'),
+    'TSGR': ('nevihta s točo', 'Nevihta s točo je'),
+    'lightRA': ('rahel dež', 'Rahlo dežuje'),
+    'modRA': ('dež', 'Dežuje'),
+    'overcast_lightRA': ('oblačno z manjšimi padavinami', 'Oblačno je z manjšimi padavinami'),
+    'overcast_modRA': ('oblačno z zmernimi padavinami', 'Oblačno je z zmernimi padavinami'),
+    'overcast_heavyRA': ('oblačno z močnimi padavinami', 'Oblačno je z močnimi padavinami'),
+    'prevCloudy_lightRA': ('pretežno oblačno z manjšimi padavinami', 'Pretežno oblačno je z manjšimi padavinami'),
+    'overcast_lightSN': ('oblačno z manjšim sneženjem', 'Oblačno z manjšim sneženjem'),
+    'FZRA': ('leden dež', 'Pada leden dež'),
+    'SHRA': ('naliv', 'Naliv je'),
+    'SHGR': ('ploha toče', 'Toča je'),
+    'TSRA': ('nevihta z dežjem', 'Nevihta z dežjem je'),
+    'TSSN': ('nevihta s sneženjem', 'Nevihta s sneženjem je'),
 }
 
+# tuple za vpis smeri vetra v podatkovno bazo: severovzhodnik -> 1 ...
+VETER_IZPIS = (
+    None,
+    'severovzhodnik',
+    'vzhodnik',
+    'jugovzhodnik',
+    'južni veter',
+    'jugozahodnik',
+    'zahodnik',
+    'severozahodnik',
+    'severnik'
+
+)
 
 # slovar z imenom kraja in šifro
 ZRAK_ŠIFRE = {
     'Ljubljana': 'E21',
     'Maribor': 'E22',
     'Celje': 'E23',
+    'Murska Sobota': 'E24',
     'Nova Gorica': 'E25',
-    'Koper': 'E30',
-    'Murska Sobota': 'E24',
-    'Murska Sobota': 'E24',
     'Trbovlje': 'E26',
+    'Koper': 'E30',
 }
-
 
 # slovar z z vrsto onesnaženja, enoto in mejno vrednostjo
 ZRAK_KATEGORIJE = {
