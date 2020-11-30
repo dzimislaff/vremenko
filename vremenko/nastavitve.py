@@ -119,6 +119,7 @@ ZRAK_ŠIFRE = {
     'Nova Gorica': 'E25',
     'Trbovlje': 'E26',
     'Koper': 'E30',
+    'Novo mesto': 'E418'
 }
 
 # slovar z z vrsto onesnaženja, enoto in mejno vrednostjo
