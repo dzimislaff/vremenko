@@ -67,6 +67,7 @@ ustvari_onesnaženost = """
     CREATE TABLE IF NOT EXISTS onesnaženost (id INTEGER PRIMARY KEY,
         čas INTEGER,
         pm10 INTEGER,  -- µg/m³
+        pm2_5 INTEGER,  -- µg/m³
         so2 INTEGER,  -- µg/m³
         co INTEGER,  -- mg/m³
         o3 INTEGER,  -- µg/m³
@@ -81,18 +82,20 @@ vnesi_onesnaženost = """
         onesnaženost (
             čas,
             pm10,
+            pm2_5,
             so2,
             co,
             o3,
             no2,
             opozorilo
         )
-    VALUES (?,?,?,?,?,?,?)
+    VALUES (?,?,?,?,?,?,?,?)
 """
 
 odstrani_znak_onesnaženost = """
     UPDATE onesnaženost
     SET pm10 = trim(pm10, '<'),
+        pm2_5 = trim(pm2_5, '<'),
         so2 = trim(so2, '<'),
         co = trim(co, '<'),
         o3 = trim(o3, '<'),
@@ -105,7 +108,7 @@ def poveži_podatkovno(lokacija: str,
     povezava = None
     try:
         povezava = sqlite3.connect(
-            # lokacija, detect_types=sqlite3.PARSE_DECLTYPES | sqlite3.PARSE_COLNAMES)
+            # detect_types=sqlite3.PARSE_DECLTYPES | sqlite3.PARSE_COLNAMES)
             lokacija)
         logging.info(
             "Povezava s podatkovno bazo je bila uspešno vzpostavljena.")

@@ -124,7 +124,8 @@ ZRAK_ŠIFRE = {
 
 # slovar z z vrsto onesnaženja, enoto in mejno vrednostjo
 ZRAK_KATEGORIJE = {
-    'pm10': ('µg/m³', 50),
+    'pm10': ('µg/m³', 50),  # 50 µg/m³ je povprečna dnevna mejna vrednost
+    'pm2.5': ('µg/m³', 50),  # mejna vrednost ni določena
     'so2': ('µg/m³', 350),
     'co': ('mg/m³', 10),
     'o3': ('µg/m³', 180),

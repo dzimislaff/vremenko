@@ -35,6 +35,7 @@ class Veter(NamedTuple):
 class Onesnaženost(NamedTuple):
     čas: datetime.datetime
     pm10: str
+    pm2_5: str
     so2: str
     co: str
     o3: str
@@ -60,6 +61,8 @@ def preveri_dostopnost_podatkov(stran  # lxml.etree._Element
                                 ) -> bool:
     if not len(stran):
         return False
+    elif not stran.xpath('/data/metData'):
+        return False
     else:
         return True
 
@@ -67,7 +70,7 @@ def preveri_dostopnost_podatkov(stran  # lxml.etree._Element
 def razberi_podatke(kategorija, xpath, stran):
     try:
         return stran.xpath(xpath[kategorija])[0].text
-    except ValueError as e:
+    except (ValueError, IndexError) as e:
         logging.warning(f"nisem uspel razbrati podatka: {kategorija}; {e}")
         return None
 
@@ -75,7 +78,7 @@ def razberi_podatke(kategorija, xpath, stran):
 def razberi_čas(xpath, stran):
     try:
         return čas_uredi(stran.xpath(xpath)[0].text)
-    except KeyError as e:
+    except (KeyError, IndexError) as e:
         logging.warning(f"nisem uspel razbrati podatka o datumu in uri; {e}")
         return None
 
@@ -214,11 +217,13 @@ def onesnaženost_podatki(stran,  # lxml.etree._Element
     onesnaženost = [vnesi(i, šifra) for i in kategorije]
     onesnaženost.append(čist_zrak(onesnaženost))
 
-    # štempljanje časa
-    xpath = f"/arsopodatki/postaja[@sifra='{šifra}']/datum_do"
-    onesnaženost.insert(0, razberi_čas(xpath, stran))
-
-    return Onesnaženost(*onesnaženost)
+    if not any(onesnaženost):
+        return None
+    else:
+        # štempljanje časa
+        xpath = f"/arsopodatki/postaja[@sifra='{šifra}']/datum_do"
+        onesnaženost.insert(0, razberi_čas(xpath, stran))
+        return Onesnaženost(*onesnaženost)
 
 
 def onesnaženost_izpis(onesnaženost: Onesnaženost,
@@ -234,13 +239,15 @@ def onesnaženost_izpis(onesnaženost: Onesnaženost,
     if onesnaženost.opozorilo:
         izpis += "POZOR! Zrak je onesnažen.\n"
 
-    for i in range(1, 6):
+    for i in range(1, 7):
         if not onesnaženost[i]:
             continue
-        izpis += (f"{onesnaženost._fields[i].upper()}: "
-                  f"{onesnaženost[i]} {enote[onesnaženost._fields[i]][0]} "
-                  f"(mejna vrednost: {enote[onesnaženost._fields[i]][1]}) "
-                  f"{enote[onesnaženost._fields[i]][0]}.\n")
+        izpis += (f"{onesnaženost._fields[i].upper().replace('_', '.')}: "
+                  f"{onesnaženost[i]} "
+                  f"{enote[onesnaženost._fields[i].replace('_', '.')][0]} "
+                  f"(mejna vrednost: "
+                  f"{enote[onesnaženost._fields[i].replace('_', '.')][1]}) "
+                  f"{enote[onesnaženost._fields[i].replace('_', '.')][0]}.\n")
     return izpis.rstrip()
 
 
