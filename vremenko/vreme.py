@@ -102,6 +102,19 @@ def vreme_podatki(stran  # lxml.etree._Element
         return Vreme(*vrednosti)
 
 
+def opis_vremena_izpis(opis_vremena: str,
+                       prevodi: dict
+                       ) -> str:
+    try:
+        return f"{prevodi[opis_vremena][1]}. "
+    except KeyError as e:
+        logging.warning(
+            f"nisem uspel najti prevoda za {opis_vremena}; {e}")
+        deljen_opis = opis_vremena.split("_")
+        return (f"{prevodi[deljen_opis[0]][1]}, "
+                f"{prevodi[deljen_opis[1]][1].lower()}. ")
+
+
 def vreme_izpis(vreme: Vreme,
                 kraj: str = "Ljubljana"
                 ) -> str:
@@ -117,7 +130,7 @@ def vreme_izpis(vreme: Vreme,
         izpis = f"Podatki za {n.KRAJI_SKLONI[kraj]}.\n"
 
     if vreme.opis_vremena or vreme.opis_vremena == 0:
-        izpis += f"{n.OPIS_VREMENA[vreme.opis_vremena][1]}. "
+        izpis += opis_vremena_izpis(vreme.opis_vremena, n.OPIS_VREMENA)
 
     if vreme.temperatura:
         izpis += (f"Temperatura zraka je "

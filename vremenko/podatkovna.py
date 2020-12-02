@@ -104,7 +104,7 @@ odstrani_znak_onesnaženost = """
 
 
 def poveži_podatkovno(lokacija: str,
-                      ):
+                      ) -> sqlite3.Connection:
     povezava = None
     try:
         povezava = sqlite3.connect(
@@ -135,18 +135,27 @@ def izvedi_ukaz(povezava,
         logging.error(f"Prišlo je do napake: {e}")
 
 
-def pretvori_unixepoch(dtm):
+def pretvori_unixepoch(dtm  # datetime.datetime
+                       ) -> float:
     return time.mktime(dtm.timetuple())
+
+
+def pretvori_opis_vremena(opis_vremena: str
+                          ) -> int:
+    try:
+        return list(OPIS_VREMENA.keys()).index(opis_vremena)
+    except ValueError as e:
+        logging.warning(
+            f"neznana kombinacija za opis vremena, "
+            f"upošteval sem vremenski pojav, zanemaril sem oblačnost; {e}")
+        return list(OPIS_VREMENA.keys()).index(opis_vremena.split("_")[1])
 
 
 def posodobi_podatkovno(podatkovna: str,  # "ljubljana-2020-11.db"
                         kraj: str  # "Ljubljana"
                         ):
-
-    povezava = poveži_podatkovno(podatkovna)
-
     podatki = vremenko_podatki(kraj)
-
+    povezava = poveži_podatkovno(podatkovna)
     # tabela dan
     if podatki.dan:
         dan = [pretvori_unixepoch(i) for i in podatki.dan[:2]]
@@ -157,10 +166,11 @@ def posodobi_podatkovno(podatkovna: str,  # "ljubljana-2020-11.db"
 
     # tabela vreme
     if podatki.vreme:
+        # vreme brez enot + veter brez enot
         podatki_vreme = list(podatki.vreme[:7] + podatki.veter[:3])
-        podatki_vreme[0] = time.mktime(podatki_vreme[0].timetuple())
+        podatki_vreme[0] = pretvori_unixepoch(podatki_vreme[0])
         if podatki_vreme[1]:
-            podatki_vreme[1] = list(OPIS_VREMENA.keys()).index(podatki_vreme[1])
+            podatki_vreme[1] = pretvori_opis_vremena(podatki_vreme[1])
         podatki_vreme[7] = VETER_IZPIS.index(podatki_vreme[7])
         izvedi_ukaz(povezava, ustvari_vreme)
         izvedi_ukaz(povezava, vnesi_vreme, *podatki_vreme)
