@@ -6,7 +6,7 @@ import logging
 import __version__
 import vremenko.beleženje
 import vremenko.vreme
-from vremenko.nastavitve import KRAJI_URL
+from vremenko.nastavitve import URL_VREME_KRAJ
 
 
 def izbira_kraja(KRAJI):
@@ -16,7 +16,7 @@ def izbira_kraja(KRAJI):
     - s polno povezavo (osnova + končnica),
     - z imenom kraja (npr. 'Metlika').
     '''
-    moznosti = list(KRAJI_URL.keys())
+    moznosti = list(URL_VREME_KRAJ.keys())
     while True:
         print('\nPodatki za kraje, ki so na voljo:')
         for i in range(len(moznosti)):
@@ -35,7 +35,7 @@ def izbira_kraja(KRAJI):
             exit(0)
         else:
             break
-    return [KRAJI_URL[(moznosti[vnos - 1])], moznosti[vnos - 1]]
+    return [URL_VREME_KRAJ[(moznosti[vnos - 1])], moznosti[vnos - 1]]
 
 
 def argumenti():
@@ -71,7 +71,7 @@ def main():
     vremenko.beleženje.beleženje(args.dnevnik, args.log)
 
     if args.izbira:
-        naslov = izbira_kraja(KRAJI_URL)[1]
+        naslov = izbira_kraja(URL_VREME_KRAJ)[1]
         print('')
     elif args.novomesto:
         naslov = "Novo mesto"

@@ -59,42 +59,45 @@ class Podatki(NamedTuple):
 
 def preveri_dostopnost_podatkov(stran  # lxml.etree._Element
                                 ) -> bool:
-    if not len(stran):
+    """
+    preveri, če XML vsebuje podatke
+    kličejo jo: vreme_podatki, veter_podatki, dan_podatki, onesnaženost_podatki
+    """
+    if stran is None:
         return False
-    elif not stran.xpath('/data/metData'):
+    elif (not stran.xpath("/data/metData")) \
+            and (not stran.xpath("/arsopodatki")):
         return False
     else:
         return True
 
 
-def razberi_podatke(kategorija, xpath, stran):
+def razberi_podatke(xpath: str,
+                    stran  # lxml.etree._Element
+                    ) -> str:
+    """
+    razbere podatke iz XML-ja s pomočjo xpatha
+    kličejo jo: vreme_podatki, veter_podatki
+    """
     try:
-        return stran.xpath(xpath[kategorija])[0].text
+        return stran.xpath(xpath)[0].text
     except (ValueError, IndexError) as e:
-        logging.warning(f"nisem uspel razbrati podatka: {kategorija}; {e}")
-        return None
-
-
-def razberi_čas(xpath, stran):
-    try:
-        return čas_uredi(stran.xpath(xpath)[0].text)
-    except (KeyError, IndexError) as e:
-        logging.warning(f"nisem uspel razbrati podatka o datumu in uri; {e}")
+        logging.warning(f"nisem uspel razbrati podatka: {xpath}; {e}")
         return None
 
 
 def vreme_podatki(stran  # lxml.etree._Element
                   ) -> Vreme:
     """
-    zahteve: typing.NamedTuple, lxml.etree
+    iz XML-ja razbere podatke o vremenu
+    kliče jo: vremenko_podatki
     """
     if not preveri_dostopnost_podatkov(stran):
         return None
 
-    kategorije = tuple(n.XPATH_VREME.keys())
-    vrednosti = [razberi_podatke(kategorija, n.XPATH_VREME, stran)
-                 for kategorija in kategorije]
-    vrednosti.insert(0, razberi_čas(n.XPATH_ČAS, stran))
+    vrednosti = [razberi_podatke(kategorija, stran)
+                 for kategorija in n.XPATH_VREME]
+    vrednosti[0] = čas_uredi(vrednosti[0])
 
     if not any(vrednosti):
         return None
@@ -105,6 +108,11 @@ def vreme_podatki(stran  # lxml.etree._Element
 def opis_vremena_izpis(opis_vremena: str,
                        prevodi: dict
                        ) -> str:
+    """
+    prevede ang. kratko oznako za opis vremena (vremenski pojav): clear -> jasno
+    če kombinacija ne obstaja, vrne primarni vremenski pojav:
+        prevCloudy_lightRA -> lightRA -> šibek dež
+    """
     try:
         return f"{prevodi[opis_vremena][1]}. "
     except KeyError as e:
@@ -119,7 +127,7 @@ def vreme_izpis(vreme: Vreme,
                 kraj: str = "Ljubljana"
                 ) -> str:
     """
-    zahteve: typing.NamedTuple
+    podatke o vremenu pretvori v besedilo
     """
     if vreme is None:
         return "Podatkov o vremenu trenutno ni. "
@@ -153,24 +161,23 @@ def vreme_izpis(vreme: Vreme,
         izpis += (f"Sončno obsevanje znaša {vreme.sončno_obsevanje} "
                   f"{vreme.sončno_obsevanje_enota}. ")
 
-    if vreme.vsota_padavin != "0":
+    if vreme.vsota_padavin not in ("0", None):
         izpis += (f"Zapadlo je "
                   f"{vreme.vsota_padavin} "
-                  f"{vreme.vsota_padavin_enota} padavin.")
+                  f"{vreme.vsota_padavin_enota} padavin. ")
     return izpis
 
 
 def veter_podatki(stran  # lxml.etree._Element
                   ) -> Veter:
     """
-    zahteve: typing.NamedTuple, lxml.etree
+    iz XML-ja razbere podatke o vetru
     """
     if not preveri_dostopnost_podatkov(stran):
         return None
 
-    kategorije = tuple(n.XPATH_VETER.keys())
-    vrednosti = [razberi_podatke(kategorija, n.XPATH_VETER, stran)
-                 for kategorija in kategorije]
+    vrednosti = [razberi_podatke(kategorija, stran)
+                 for kategorija in n.XPATH_VETER]
 
     if not any(vrednosti):
         return None
@@ -181,7 +188,7 @@ def veter_podatki(stran  # lxml.etree._Element
 def veter_izpis(veter: Veter
                 ) -> str:
     """
-    zahteve: typing.NamedTuple
+    podatke o vetru pretvori v besedilo
     """
     if veter is None:
         return None
@@ -203,9 +210,9 @@ def onesnaženost_podatki(stran,  # lxml.etree._Element
                          kategorije: dict = n.ZRAK_KATEGORIJE
                          ) -> Onesnaženost:
     """
-    zahteve: lxml.etree, nastavitve
+    iz XML-ja razbere podatke o onesnaženosti zraka
     """
-    if stran is None:
+    if not preveri_dostopnost_podatkov(stran):
         return None
 
     def vnesi(i, šifra):
@@ -233,9 +240,8 @@ def onesnaženost_podatki(stran,  # lxml.etree._Element
     if not any(onesnaženost):
         return None
     else:
-        # štempljanje časa
-        xpath = f"/arsopodatki/postaja[@sifra='{šifra}']/datum_do"
-        onesnaženost.insert(0, razberi_čas(xpath, stran))
+        xpath = f"/arsopodatki/postaja[@sifra='{šifra}']/datum_do"  # čas
+        onesnaženost.insert(0, čas_uredi(razberi_podatke(xpath, stran)))
         return Onesnaženost(*onesnaženost)
 
 
@@ -243,7 +249,7 @@ def onesnaženost_izpis(onesnaženost: Onesnaženost,
                        enote: dict = n.ZRAK_KATEGORIJE
                        ) -> str:
     """
-    zahteve: nastavitve
+    podatke o onesnaženosti zraka pretvori v besedilo
     """
     if onesnaženost is None:
         return "Podatkov o kakovosti zraka trenutno ni."
@@ -265,18 +271,31 @@ def onesnaženost_izpis(onesnaženost: Onesnaženost,
 
 
 def ura_izpis(dtm):
-    return dtm.time().strftime("%H.%M").lstrip("0")
+    """
+    pretvori datetime.datetime v uro, npr.: 12.30
+    """
+    ura = dtm.time().strftime("%H.%M").lstrip("0")
+    if len(ura) == 3:  # ob polnoči: .30 -> 00.30
+        return f"00{ura}"
+    else:
+        return ura
 
 
 def datum_izpis(dtm):
+    """
+    pretvori datetime.datetime v datum, npr.: 24. 5. 2020
+    """
     return dtm.date().strftime("%-d. %-m. %Y")
 
 
 def čas_uredi(niz: str  # "06.04.2020 19:38 CEST"
               ) -> datetime.datetime:
-    # onesnaženost = "2020-11-18 17:00"
-    # xml_pozimi = "19.11.2020 18:00 CET"
-    # xml_poleti = "06.04.2020 19:38 CEST"
+    """
+    niz pretvori v datetime.datetime
+        onesnaženost = "2020-11-18 17:00"
+        xml_pozimi = "19.11.2020 18:00 CET"
+        xml_poleti = "06.04.2020 19:38 CEST"
+    """
 
     if type(niz) != str:
         return None
@@ -296,7 +315,7 @@ def čas_uredi(niz: str  # "06.04.2020 19:38 CEST"
 def dan_podatki(stran  # lxml.etree._Element
                 ) -> Dan:
     """
-    zahteve: typing.NamedTuple, lxml.etree
+    iz XML-ja razbere podatke o dnevu
     """
     if not preveri_dostopnost_podatkov(stran):
         return None
@@ -320,7 +339,7 @@ def dan_podatki(stran  # lxml.etree._Element
 def dan_izpis(dan: Dan
               ) -> str:
     """
-    zahteve: typing.NamedTuple
+    podatke o dnevu pretvori v besedilo
     """
     if dan is None:
         return None
@@ -341,7 +360,7 @@ def vreme_ni_podatkov() -> str:
 
 def ni_povezave() -> str:
     """
-    sporočilo, ko ni povezvae
+    sporočilo, ko ni povezave
     """
     return "Podatki so trenutno nedosegljivi."
 
@@ -349,12 +368,12 @@ def ni_povezave() -> str:
 def vremenko_podatki(kraj: str = "Ljubljana"
                      ) -> tuple:
     """
-    osrednja funkcija, ki pridobi podatke o vremenu (vreme, veter, dan,
+    osrednja funkcija, ki zbere podatke o vremenu (vreme, veter, dan,
     onesnaženost)
     """
-    stran_vreme = vremenko.poštar.pridobi_xml(n.KRAJI_URL[kraj])
+    stran_vreme = vremenko.poštar.pridobi_xml(n.URL_VREME_KRAJ[kraj])
     if kraj in n.ZRAK_ŠIFRE.keys():
-        stran_onesnaženost = vremenko.poštar.pridobi_xml(n.ZRAK)
+        stran_onesnaženost = vremenko.poštar.pridobi_xml(n.URL_ZRAK)
     else:
         stran_onesnaženost = None
 
@@ -381,8 +400,7 @@ def vremenko_izpis(kraj: str = "Ljubljana"
     podatki = vremenko_podatki(kraj)
 
     if type(podatki) is not vremenko.vreme.Podatki:
-        # kliče vreme_ni_podatkov() ali ni_povezave()
-        return eval(podatki)()
+        return eval(podatki)()  # kliče vreme_ni_podatkov() ali ni_povezave()
 
     else:
         izpis = ""
@@ -403,9 +421,5 @@ def vremenko_izpis(kraj: str = "Ljubljana"
     return izpis
 
 
-def main():
-    print(vremenko_izpis())
-
-
 if __name__ == "__main__":
-    main()
+    print(vremenko_izpis())

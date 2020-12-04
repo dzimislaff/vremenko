@@ -4,16 +4,16 @@
 import pytest
 import datetime
 import vremenko.vreme
-import vremenko.nastavitve as n
 import vremenko.poštar
+from vremenko.nastavitve import URL_VREME_KRAJ
 
 
-kraji = vremenko.nastavitve.KRAJI_URL.keys()
+kraji = vremenko.nastavitve.URL_VREME_KRAJ.keys()
 
 
 @pytest.mark.parametrize('kraj', kraji)
 def test_dan_podatki(kraj):
-    stran = vremenko.poštar.pridobi_xml(n.KRAJI_URL[kraj])
+    stran = vremenko.poštar.pridobi_xml(URL_VREME_KRAJ[kraj])
     podatki = vremenko.vreme.dan_podatki(stran)
 
     assert type(podatki.vzhod) == datetime.datetime

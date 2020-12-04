@@ -5,7 +5,7 @@ import sqlite3
 from sqlite3 import Error
 import logging
 import time
-from vremenko.nastavitve import OPIS_VREMENA, VETER_IZPIS
+from vremenko.nastavitve import KRAJI_SKLONI, OPIS_VREMENA, VETER_IZPIS
 from vremenko.vreme import vremenko_podatki
 
 
@@ -105,6 +105,9 @@ odstrani_znak_onesnaženost = """
 
 def poveži_podatkovno(lokacija: str,
                       ) -> sqlite3.Connection:
+    """
+    ustvari povezavo s podatkovno bazo
+    """
     povezava = None
     try:
         povezava = sqlite3.connect(
@@ -117,7 +120,7 @@ def poveži_podatkovno(lokacija: str,
     return povezava
 
 
-def izvedi_ukaz(povezava,
+def izvedi_ukaz(povezava: sqlite3.Connection,
                 ukaz: str,
                 *vnos: str
                 ):
@@ -137,11 +140,19 @@ def izvedi_ukaz(povezava,
 
 def pretvori_unixepoch(dtm  # datetime.datetime
                        ) -> float:
+    """
+    pretvori datetime.datetime v unixepoch
+    """
     return time.mktime(dtm.timetuple())
 
 
 def pretvori_opis_vremena(opis_vremena: str
                           ) -> int:
+    """
+    opis vremena pretvori v zaporedno številko: 1 -> clear ...
+    če kombinacije ni na seznamu, pretvori najprej v primarni vremenski pojav:
+        prevCloudy_lightRA -> lightRA -> 21 ...
+    """
     try:
         return list(OPIS_VREMENA.keys()).index(opis_vremena)
     except ValueError as e:
@@ -154,35 +165,44 @@ def pretvori_opis_vremena(opis_vremena: str
 def posodobi_podatkovno(podatkovna: str,  # "ljubljana-2020-11.db"
                         kraj: str  # "Ljubljana"
                         ):
-    podatki = vremenko_podatki(kraj)
-    povezava = poveži_podatkovno(podatkovna)
-    # tabela dan
-    if podatki.dan:
-        dan = [pretvori_unixepoch(i) for i in podatki.dan[:2]]
-        dan.append(podatki.dan.dolžina_dneva.total_seconds())
-        dan.append(podatki.dan.zaporedni_v_letu)
-        izvedi_ukaz(povezava, ustvari_dan)
-        izvedi_ukaz(povezava, vnesi_dan, *dan)
+    """
+    osrednja funkcija, ki vnese zbrane podatke v podatkovno bazo
+    """
+    if kraj not in KRAJI_SKLONI.keys():
+        logging.warning("Za ta kraj ne morem pridobiti podatkov.")
+    else:
+        podatki = vremenko_podatki(kraj)
+        povezava = poveži_podatkovno(podatkovna)
+        # tabela dan
+        if podatki.dan:
+            dan = [pretvori_unixepoch(i) for i in podatki.dan[:2]]
+            dan.append(podatki.dan.dolžina_dneva.total_seconds())
+            dan.append(podatki.dan.zaporedni_v_letu)
+            izvedi_ukaz(povezava, ustvari_dan)
+            izvedi_ukaz(povezava, vnesi_dan, *dan)
 
-    # tabela vreme
-    if podatki.vreme:
-        # vreme brez enot + veter brez enot
-        podatki_vreme = list(podatki.vreme[:7] + podatki.veter[:3])
-        podatki_vreme[0] = pretvori_unixepoch(podatki_vreme[0])
-        if podatki_vreme[1]:
-            podatki_vreme[1] = pretvori_opis_vremena(podatki_vreme[1])
-        podatki_vreme[7] = VETER_IZPIS.index(podatki_vreme[7])
-        izvedi_ukaz(povezava, ustvari_vreme)
-        izvedi_ukaz(povezava, vnesi_vreme, *podatki_vreme)
+        # tabela vreme
+        if podatki.vreme:
+            # vreme brez enot + veter brez enot
+            podatki_vreme = list(podatki.vreme[:7] + podatki.veter[:3])
+            podatki_vreme[0] = pretvori_unixepoch(podatki_vreme[0])
+            if podatki_vreme[1]:
+                podatki_vreme[1] = pretvori_opis_vremena(podatki_vreme[1])
+            podatki_vreme[7] = VETER_IZPIS.index(podatki_vreme[7])
+            izvedi_ukaz(povezava, ustvari_vreme)
+            izvedi_ukaz(povezava, vnesi_vreme, *podatki_vreme)
 
-    # tabela onesnaženost
-    if podatki.onesnaženost:
-        onesnaženost = list(podatki.onesnaženost)
-        onesnaženost[0] = pretvori_unixepoch(onesnaženost[0])
-        izvedi_ukaz(povezava, ustvari_onesnaženost)
-        izvedi_ukaz(povezava, vnesi_onesnaženost, *onesnaženost)
-        izvedi_ukaz(povezava, odstrani_znak_onesnaženost)
+        # tabela onesnaženost
+        if podatki.onesnaženost:
+            onesnaženost = list(podatki.onesnaženost)
+            onesnaženost[0] = pretvori_unixepoch(onesnaženost[0])
+            izvedi_ukaz(povezava, ustvari_onesnaženost)
+            izvedi_ukaz(povezava, vnesi_onesnaženost, *onesnaženost)
+            izvedi_ukaz(povezava, odstrani_znak_onesnaženost)
 
 
 if __name__ == '__main__':
-    posodobi_podatkovno()
+    posodobi_podatkovno(
+        input("Vnesite ime in lokacijo podatkovne baze.\n"),
+        input("\nVnesite ime kraja.\n")
+        )

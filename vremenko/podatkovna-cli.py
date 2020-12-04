@@ -8,7 +8,7 @@ import vremenko.podatkovna
 
 def argumenti():
     """
-    Razbere ukaz iz ukazne vrstice.
+    razbere ukaz iz ukazne vrstice
     """
     parser = argparse.ArgumentParser(
         description="Preprost program, ki zapiše trenutne vremenske razmere \
