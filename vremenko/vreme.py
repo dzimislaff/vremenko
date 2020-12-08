@@ -46,7 +46,7 @@ class Onesnaženost(NamedTuple):
 class Dan(NamedTuple):
     vzhod: datetime.date
     zahod: datetime.date
-    dolžina_dneva: str
+    dolžina_dneva: datetime.timedelta
     zaporedni_v_letu: int
 
 
@@ -61,7 +61,7 @@ def preveri_dostopnost_podatkov(stran  # lxml.etree._Element
                                 ) -> bool:
     """
     preveri, če XML vsebuje podatke
-    kličejo jo: vreme_podatki, veter_podatki, dan_podatki, onesnaženost_podatki
+    kličejo jo: vreme_podatki, dan_podatki, onesnaženost_podatki
     """
     if stran is None:
         return False
@@ -77,7 +77,7 @@ def razberi_podatke(xpath: str,
                     ) -> str:
     """
     razbere podatke iz XML-ja s pomočjo xpatha
-    kličejo jo: vreme_podatki, veter_podatki
+    kliče jo: vreme_podatki
     """
     try:
         return stran.xpath(xpath)[0].text
@@ -86,23 +86,19 @@ def razberi_podatke(xpath: str,
         return None
 
 
-def vreme_podatki(stran  # lxml.etree._Element
-                  ) -> Vreme:
+def vreme_podatki(xpath: tuple,
+                  stran  # lxml.etree._Element
+                  ) -> list:
     """
-    iz XML-ja razbere podatke o vremenu
-    kliče jo: vremenko_podatki
+    iz XML-ja razbere vremenske podatke (vreme, veter)
     """
-    if not preveri_dostopnost_podatkov(stran):
-        return None
-
     vrednosti = [razberi_podatke(kategorija, stran)
-                 for kategorija in n.XPATH_VREME]
-    vrednosti[0] = čas_uredi(vrednosti[0])
+                 for kategorija in xpath]
 
     if not any(vrednosti):
-        return None
+        return [None, None, None]
     else:
-        return Vreme(*vrednosti)
+        return vrednosti
 
 
 def opis_vremena_izpis(opis_vremena: str,
@@ -112,6 +108,7 @@ def opis_vremena_izpis(opis_vremena: str,
     prevede ang. kratko oznako za opis vremena (vremenski pojav): clear -> jasno
     če kombinacija ne obstaja, vrne primarni vremenski pojav:
         prevCloudy_lightRA -> lightRA -> šibek dež
+    kliče jo: vremenko_izpis
     """
     try:
         return f"{prevodi[opis_vremena][1]}. "
@@ -166,23 +163,6 @@ def vreme_izpis(vreme: Vreme,
                   f"{vreme.vsota_padavin} "
                   f"{vreme.vsota_padavin_enota} padavin. ")
     return izpis
-
-
-def veter_podatki(stran  # lxml.etree._Element
-                  ) -> Veter:
-    """
-    iz XML-ja razbere podatke o vetru
-    """
-    if not preveri_dostopnost_podatkov(stran):
-        return None
-
-    vrednosti = [razberi_podatke(kategorija, stran)
-                 for kategorija in n.XPATH_VETER]
-
-    if not any(vrednosti):
-        return None
-    else:
-        return Veter(*vrednosti)
 
 
 def veter_izpis(veter: Veter
@@ -296,14 +276,12 @@ def čas_uredi(niz: str  # "06.04.2020 19:38 CEST"
         xml_pozimi = "19.11.2020 18:00 CET"
         xml_poleti = "06.04.2020 19:38 CEST"
     """
-
     if type(niz) != str:
         return None
     elif not (16 <= len(niz) <= 21):
         return None
 
     slo_časovni_pas = tz.gettz("Europe/Ljubljana")
-
     niz = niz.rstrip(" CEST").rstrip(" CET")
     if "." in niz:
         dtm = datetime.datetime.strptime(niz, "%d.%m.%Y %H:%M")
@@ -325,15 +303,15 @@ def dan_podatki(stran  # lxml.etree._Element
 
     if not vzhod:
         return None
+    else:
+        dolžina_dneva = zahod - vzhod
+        zaporedni_v_letu = vzhod.timetuple().tm_yday
 
-    dolžina_dneva = zahod - vzhod
-    zaporedni_v_letu = vzhod.timetuple().tm_yday
-
-    return Dan(vzhod=vzhod,
-               zahod=zahod,
-               dolžina_dneva=dolžina_dneva,
-               zaporedni_v_letu=zaporedni_v_letu
-               )
+        return Dan(vzhod=vzhod,
+                   zahod=zahod,
+                   dolžina_dneva=dolžina_dneva,
+                   zaporedni_v_letu=zaporedni_v_letu
+                   )
 
 
 def dan_izpis(dan: Dan
@@ -384,8 +362,10 @@ def vremenko_podatki(kraj: str = "Ljubljana"
         return "vreme_ni_podatkov"
 
     else:
-        return Podatki(vreme=vreme_podatki(stran_vreme),
-                       veter=veter_podatki(stran_vreme),
+        vreme = vreme_podatki(n.XPATH_VREME, stran_vreme)
+        vreme[0] = čas_uredi(vreme[0])
+        return Podatki(vreme=Vreme(*vreme),
+                       veter=Veter(*vreme_podatki(n.XPATH_VETER, stran_vreme)),
                        onesnaženost=onesnaženost_podatki(stran_onesnaženost,
                                                          kraj),
                        dan=dan_podatki(stran_vreme),
@@ -418,7 +398,7 @@ def vremenko_izpis(kraj: str = "Ljubljana"
 
         if podatki.onesnaženost:
             izpis += "\n" + onesnaženost_izpis(podatki.onesnaženost)
-    return izpis
+        return izpis
 
 
 if __name__ == "__main__":
