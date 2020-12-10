@@ -289,7 +289,7 @@ def onesnaženost_izpis(onesnaženost: Onesnaženost,
     if onesnaženost is None:
         return "Podatkov o kakovosti zraka trenutno ni."
 
-    izpis = ""
+    izpis = "\n"
     if onesnaženost.opozorilo:
         izpis += "POZOR! Zrak je onesnažen.\n"
 
@@ -326,7 +326,11 @@ def datum_izpis(dtm):
     """
     pretvori datetime.datetime v datum, npr.: 24. 5. 2020
     """
-    return dtm.date().strftime("%-d. %-m. %Y")
+    try:
+        return dtm.date().strftime("%-d. %-m. %Y")
+    except ValueError as e:
+        logging.info("Windows ne podpira izpisa v obliki %-d -> %d")
+        return dtm.date().strftime("%d. %m. %Y")
 
 
 def čas_uredi(niz: str  # "06.04.2020 19:38 CEST"
@@ -470,7 +474,7 @@ def vremenko_izpis(kraj: str,  # "Ljubljana"
     podatki = vremenko_podatki(kraj)
 
     if type(podatki) is not vremenko.vreme.Podatki:
-        return eval(podatkek)()  # kliče vreme_ni_podatkov() ali ni_povezave()
+        return eval(podatki)()  # kliče vreme_ni_podatkov() ali ni_povezave()
     else:
         return izpisnik(podatki, alineje)
 
