@@ -15,7 +15,7 @@ kraji = vremenko.nastavitve.URL_VREME_KRAJ.keys()
 def test_vreme_podatki(kraj):
     stran = vremenko.poštar.pridobi_xml(URL_VREME_KRAJ[kraj])
     podatki = vremenko.vreme.vreme_podatki(XPATH_VREME, stran)
-    podatki[0] = vremenko.vreme.čas_uredi(podatki[0])
+    podatki[1] = vremenko.vreme.čas_uredi(podatki[1])
     podatki = vremenko.vreme.Vreme(*podatki)
     assert type(podatki.čas) == datetime.datetime
     assert type(podatki.temperatura) == str

@@ -10,6 +10,7 @@ import vremenko.poštar
 
 
 class Vreme(NamedTuple):
+    kraj: str
     čas: datetime.date
     opis_vremena: str
     temperatura: str
@@ -53,8 +54,8 @@ class Dan(NamedTuple):
 class Podatki(NamedTuple):
     vreme: NamedTuple
     veter: NamedTuple
-    onesnaženost: NamedTuple
     dan: NamedTuple
+    onesnaženost: NamedTuple
 
 
 def preveri_dostopnost_podatkov(stran  # lxml.etree._Element
@@ -121,7 +122,6 @@ def opis_vremena_izpis(opis_vremena: str,
 
 
 def vreme_izpis(vreme: Vreme,
-                kraj: str = "Ljubljana"
                 ) -> str:
     """
     podatke o vremenu pretvori v besedilo
@@ -129,10 +129,9 @@ def vreme_izpis(vreme: Vreme,
     if vreme is None:
         return "Podatkov o vremenu trenutno ni. "
 
+    izpis = f"Podatki za {n.KRAJI_SKLONI[vreme.kraj]}.\n"
     if vreme.čas:
-        izpis = f"Podatki za {n.KRAJI_SKLONI[kraj]} ob {ura_izpis(vreme.čas)}.\n"
-    else:
-        izpis = f"Podatki za {n.KRAJI_SKLONI[kraj]}.\n"
+        izpis = f"{izpis.rstrip()} ob {ura_izpis(vreme.čas)}.\n"
 
     if vreme.opis_vremena or vreme.opis_vremena == 0:
         izpis += opis_vremena_izpis(vreme.opis_vremena, n.OPIS_VREMENA)
@@ -170,18 +169,74 @@ def veter_izpis(veter: Veter
     """
     podatke o vetru pretvori v besedilo
     """
-    if veter is None:
+    if not any(veter[:3]):
         return None
+    else:
+        izpis = (f"Piha {veter.smer_vetra} "
+                 f"s hitrostjo {veter.hitrost_vetra.replace('.', ',')} "
+                 f"{veter.hitrost_vetra_enota} "
+                 f"in sunki do {veter.sunki_vetra.replace('.', ',')} "
+                 f"{veter.sunki_vetra_enota}. ")
+        return izpis
 
-    elif not any(veter[:3]):
-        return None
 
-    izpis = (f"Piha {veter.smer_vetra} "
-             f"s hitrostjo {veter.hitrost_vetra.replace('.', ',')} "
-             f"{veter.hitrost_vetra_enota} "
-             f"in sunki do {veter.sunki_vetra.replace('.', ',')} "
-             f"{veter.sunki_vetra_enota}. ")
+def alineje_izpis(kategorije: list,
+                  vrednosti: list,
+                  izpis: str = ""
+                  ) -> str:
+    """
+    izpis podatkov v alinejah, npr.: Temperatura zraka: 2,6 °C.
+    """
+    for i, j in zip(kategorije, vrednosti):
+        izpis += f"{i}: {j}.\n"
     return izpis
+
+
+def kategorije_izpis(podatki: tuple,
+                     ) -> list:
+    """
+    ustvari seznam s kategorijami: ['Opis vremena', 'Temperatura' ...]
+    """
+    return [kategorija.capitalize().replace("_", " ") for kategorija in podatki]
+
+
+def vrednosti_izpis(vrednosti: tuple,
+                    enote: tuple
+                    ) -> list:
+    """
+    ustvari seznam z vrednostmi z enotami: ['Ni podatka', '2.4 °C' ...]
+    """
+    return [f"{i} {j}" for i, j in zip(vrednosti, enote)]
+
+
+def vreme_izpis_kratko(vreme: Vreme,
+                       ) -> str:
+    """
+    podatke o vremenu pretvori v kratko besedilo v alinejah
+    """
+    kategorije = kategorije_izpis(vreme._fields[2:7])
+    vrednosti = vrednosti_izpis(vreme[2:7], vreme[7:])
+    # "partCloudy 0" -> "delno oblačno"
+    vrednosti[0] = n.OPIS_VREMENA[vrednosti[0].split(" ")[0]][0]
+
+    izpis = f"Podatki za {n.KRAJI_SKLONI[vreme.kraj]}.\n"
+    if vreme.čas:
+        izpis = f"{izpis.rstrip()} ob {ura_izpis(vreme.čas)}.\n"
+    return alineje_izpis(kategorije, vrednosti, izpis)
+
+
+def veter_izpis_kratko(veter: Veter
+                       ) -> str:
+    """
+    podatke o vetru pretvori v kratko besedilo v alinejah
+    """
+    if not any(veter[:3]):
+        return None
+    else:
+        kategorije = kategorije_izpis(veter._fields[:3])
+        vrednosti = vrednosti_izpis(veter[1:3], veter[3:])
+        vrednosti.insert(0, veter[0])
+        return alineje_izpis(kategorije, vrednosti)
 
 
 def onesnaženost_podatki(stran,  # lxml.etree._Element
@@ -250,6 +305,12 @@ def onesnaženost_izpis(onesnaženost: Onesnaženost,
     return izpis.rstrip()
 
 
+def onesnaženost_izpis_kratko(onesnaženost: Onesnaženost,
+                              enote: dict = n.ZRAK_KATEGORIJE
+                              ) -> str:
+    return onesnaženost_izpis(onesnaženost, enote)
+
+
 def ura_izpis(dtm):
     """
     pretvori datetime.datetime v uro, npr.: 12.30
@@ -278,6 +339,7 @@ def čas_uredi(niz: str  # "06.04.2020 19:38 CEST"
     """
     if type(niz) != str:
         return None
+    # TODO test za Dobliče Črnomelj in Koper Kapitanija
     elif not (16 <= len(niz) <= 21):
         return None
 
@@ -319,13 +381,23 @@ def dan_izpis(dan: Dan
     """
     podatke o dnevu pretvori v besedilo
     """
-    if dan is None:
-        return None
-
     izpis = (f"Danes je {datum_izpis(dan.vzhod)}, tj. {dan.zaporedni_v_letu}. "
              f"dan v letu. Sončni vzhod je ob {ura_izpis(dan.vzhod)}, "
              f"zahod ob {ura_izpis(dan.zahod)}, dan traja "
              f"{str(dan.dolžina_dneva)[:-3].replace(':', '.')}.")
+    return izpis
+
+
+def dan_izpis_kratko(dan: Dan
+                     ) -> str:
+    """
+    podatke o dnevu pretvori v kratko besedilo v alinejah
+    """
+    izpis = (f"Datum: {datum_izpis(dan.vzhod)}.\n"
+             f"Zaporedni dan v letu: {dan.zaporedni_v_letu}.\n"
+             f"Vzhod: {ura_izpis(dan.vzhod)}.\n"
+             f"Zahod: {ura_izpis(dan.zahod)}.\n"
+             f"Dolžina dneva: {str(dan.dolžina_dneva)[:-3].replace(':', '.')}.\n")
     return izpis
 
 
@@ -343,8 +415,8 @@ def ni_povezave() -> str:
     return "Podatki so trenutno nedosegljivi."
 
 
-def vremenko_podatki(kraj: str = "Ljubljana"
-                     ) -> tuple:
+def vremenko_podatki(kraj: str  # "Ljubljana"
+                     ) -> Podatki:
     """
     osrednja funkcija, ki zbere podatke o vremenu (vreme, veter, dan,
     onesnaženost)
@@ -363,16 +435,34 @@ def vremenko_podatki(kraj: str = "Ljubljana"
 
     else:
         vreme = vreme_podatki(n.XPATH_VREME, stran_vreme)
-        vreme[0] = čas_uredi(vreme[0])
+        vreme[1] = čas_uredi(vreme[1])
         return Podatki(vreme=Vreme(*vreme),
                        veter=Veter(*vreme_podatki(n.XPATH_VETER, stran_vreme)),
+                       dan=dan_podatki(stran_vreme),
                        onesnaženost=onesnaženost_podatki(stran_onesnaženost,
                                                          kraj),
-                       dan=dan_podatki(stran_vreme),
                        )
 
 
-def vremenko_izpis(kraj: str = "Ljubljana"
+def izpisnik(podatki: Podatki,
+             alineje: bool
+             ) -> str:
+    """
+    kliče funkcije vreme_izpis oz. vreme_izpis_kratko itd.
+    """
+    ukazi = ["vreme_izpis", "veter_izpis", "dan_izpis", "onesnaženost_izpis"]
+    if alineje:
+        ukazi = [i + "_kratko" for i in ukazi]
+    izpis = ""
+    for ukaz, podatek in zip(ukazi, podatki):
+        odgovor = eval(ukaz)(podatek)
+        if odgovor:
+            izpis += eval(ukaz)(podatek)
+    return izpis
+
+
+def vremenko_izpis(kraj: str,  # "Ljubljana"
+                   alineje: bool = False
                    ) -> str:
     """
     osrednja funkcija, ki vrne izpis vremena (vreme, veter, dan, onesnaženost)
@@ -380,25 +470,9 @@ def vremenko_izpis(kraj: str = "Ljubljana"
     podatki = vremenko_podatki(kraj)
 
     if type(podatki) is not vremenko.vreme.Podatki:
-        return eval(podatki)()  # kliče vreme_ni_podatkov() ali ni_povezave()
-
+        return eval(podatkek)()  # kliče vreme_ni_podatkov() ali ni_povezave()
     else:
-        izpis = ""
-        izpis_vreme = vreme_izpis(podatki.vreme, kraj)
-        if izpis_vreme:
-            izpis += izpis_vreme
-
-        izpis_veter = veter_izpis(podatki.veter)
-        if izpis_veter:
-            izpis += izpis_veter
-
-        izpis_dolžina_dneva = dan_izpis(podatki.dan)
-        if izpis_dolžina_dneva:
-            izpis += izpis_dolžina_dneva
-
-        if podatki.onesnaženost:
-            izpis += "\n" + onesnaženost_izpis(podatki.onesnaženost)
-        return izpis
+        return izpisnik(podatki, alineje)
 
 
 if __name__ == "__main__":

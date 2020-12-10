@@ -11,20 +11,20 @@ URL_VREME_KRAJ = {
     "Novo mesto": (URL_VREME + "NOVO-MES_latest.xml"),
     "Rogaška Slatina": (URL_VREME + "ROGAS-SLA_latest.xml"),
     "Metlika": (URL_VREME + "METLIKA_latest.xml"),
-    "Črnomelj": (URL_VREME + "CRNOMELJ_latest.xml"),
-    "Koper": (URL_VREME + "KOPER_KAPET-IJA_latest.xml"),
+    "Dobliče Črnomelj": (URL_VREME + "CRNOMELJ_latest.xml"),
+    "Koper Kapitanija": (URL_VREME + "KOPER_KAPET-IJA_latest.xml"),
     "Celje": (URL_VREME + "CELJE_MEDLOG_latest.xml"),
     "Kočevje": (URL_VREME + "KOCEVJE_latest.xml"),
     "Maribor": (URL_VREME + "MARIBOR_VRBAN-PLA_latest.xml"),
     "Podčetrtek": (URL_VREME + "PODCE-TEK_ATOMS-TOP_latest.xml"),
-    "Bilje pri Novi Gorici": (URL_VREME + "NOVA-GOR_BILJE_latest.xml"),
+    "Bilje Nova Gorica": (URL_VREME + "NOVA-GOR_BILJE_latest.xml"),
     "Marinča vas": (URL_VREME + "MARIN-VAS_latest.xml"),
     "Murska Sobota": (URL_VREME + "MURSK-SOB_latest.xml"),
     "Trbovlje": (URL_VREME + "TRBOVLJE_latest.xml"),
     "Krško": (URL_VREME + "KRSKO_NEK_latest.xml"),
-    "Nanos (1242 m)": (URL_VREME + "NANOS_latest.xml"),
-    "Rogla (1494 m)": (URL_VREME + "ROGLA_latest.xml"),
-    "Kredarica (2514 m)": (URL_VREME + "KREDA-ICA_latest.xml"),
+    "Nanos": (URL_VREME + "NANOS_latest.xml"),  # 1242 m
+    "Rogla": (URL_VREME + "ROGLA_latest.xml"),  # 1494 m
+    "Kredarica": (URL_VREME + "KREDA-ICA_latest.xml"),  # 2514 m
 }
 
 KRAJI_SKLONI = {
@@ -32,24 +32,25 @@ KRAJI_SKLONI = {
     "Novo mesto": "Novo mesto",
     "Rogaška Slatina": "Rogaško Slatino",
     "Metlika": "Metliko",
-    "Črnomelj": "Črnomelj",
-    "Koper": "Koper",
+    "Dobliče Črnomelj": "Dobliče pri Črnomlju",
+    "Koper Kapitanija": "Koper",
     "Celje": "Celje",
     "Kočevje": "Kočevje",
     "Maribor": "Maribor",
     "Podčetrtek": "Podčetrtek",
-    "Bilje pri Novi Gorici": "Bilje pri Novi Gorici",
+    "Bilje Nova Gorica": "Bilje pri Novi Gorici",
     "Marinča vas": "Marinčo vas",
     "Murska Sobota": "Mursko Soboto",
     "Trbovlje": "Trbovlje",
     "Krško": "Krško",
-    "Nanos (1242 m)": "Nanos (1242 m)",
-    "Rogla (1494 m)": "Roglo (1494 m)",
-    "Kredarica (2514 m)": "Kredarico",
+    "Nanos": "Nanos",
+    "Rogla": "Roglo",
+    "Kredarica": "Kredarico",
 }
 
 # slovarja z imenom kategorije in xpathom do podatka v XML-datoteki
 XPATH_VREME = (
+    "/data/metData/domain_longTitle",  # kraj
     "/data/metData/tsValid_issued",  # čas
     "/data/metData/nn_icon-wwsyn_icon",  # opis vremena
     "/data/metData/t",  # temperatura
@@ -67,7 +68,7 @@ XPATH_VETER = (
 
 # slovar s prevodom vremenskih oznak za izpis: 1 -> clear ...
 OPIS_VREMENA = {
-    None: None,
+    "None": ("Ni podatka", "Ni podatka"),
     "clear": ("jasno", "Jasno je"),
     "mostClear": ("pretežno jasno", "Pretežno jasno je"),
     "slightCloudy": ("rahlo oblačno", "Rahlo oblačno je"),

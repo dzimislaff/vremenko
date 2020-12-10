@@ -60,7 +60,9 @@ def argumenti():
                         help="vrsta dnevniških vnosov")
     parser.add_argument("--dnevnik", type=str,
                         help="vrsta dnevniških vnosov")
-    parser.add_argument('--version', action='version',
+    parser.add_argument("--kratko", action="store_true", default=False,
+                        help="kratka oblika izpisa v alinejah")
+    parser.add_argument("-v", "--verzija", action="version",
                         version='%(prog)s {version}'.format(
                             version=__version__.__version__))
     return parser.parse_args()
@@ -79,7 +81,7 @@ def main():
         naslov = 'Rogaška Slatina'
     else:
         naslov = 'Ljubljana'
-    print(vremenko.vreme.vremenko_izpis(naslov))
+    print(vremenko.vreme.vremenko_izpis(naslov, args.kratko))
 
 
 if __name__ == '__main__':
