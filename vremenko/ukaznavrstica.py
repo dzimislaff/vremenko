@@ -68,7 +68,7 @@ def argumenti():
     return parser.parse_args()
 
 
-def main():
+def ukaznavrstica():
     args = argumenti()
     vremenko.beleženje.beleženje(args.dnevnik, args.log)
 
@@ -85,4 +85,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    ukaznavrstica()
