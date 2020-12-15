@@ -3,6 +3,7 @@
 
 # https://github.com/navdeep-G/setup.py
 # https://github.com/navdeep-G/setup.py/blob/master/setup.py
+# https://click.palletsprojects.com/en/7.x/setuptools/
 
 from setuptools import setup
 import __version__
@@ -18,7 +19,6 @@ avtor = 'nejc'
 različica_pythona = "!=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, !=3.5.*, >=3.6.0"
 zahtevani_moduli = [
     "lxml", "python-dateutil", "requests"
-    # "click", "lxml", "python-dateutil", "requests"
 ]
 dodatni_moduli = {
     "testiranje": ["pytest"],

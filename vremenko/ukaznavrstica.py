@@ -5,14 +5,14 @@ import argparse
 import logging
 import __version__
 import vremenko.beleženje
-import vremenko.vreme
+from vremenko.vreme import vremenko_izpis
 from vremenko.nastavitve import KRAJI_SKLONI, URL_VREME_KRAJ
 
 
 def uporabnikovo_izbiranje_kraja(KRAJI: dict
                                  ) -> str:  # ime kraja, npr.: Krško
     """
-
+    uporabniku ponudi seznam krajev
     """
     def neveljavna_izbira(e):
         logging.info(f"neveljavna izbira: {e}")
@@ -23,17 +23,21 @@ def uporabnikovo_izbiranje_kraja(KRAJI: dict
         print("\nIzhod.")
         exit(0)
 
+    def uvodno_sporočilo(možnosti: list
+                         ) -> str:
+        uvod = ["\nPodatki za kraje, ki so na voljo:"]
+        [uvod.append(f"{i+1}.)  {možnosti[i]}") for i in range(len(možnosti))]
+        return "\n\t".join(uvod)
+
     možnosti = list(KRAJI_SKLONI.keys())
+    uvod = uvodno_sporočilo(možnosti)
     while True:
-        print("\nPodatki za kraje, ki so na voljo:")
-        for i in range(len(možnosti)):
-            print(f"\t({str(i + 1)})  {možnosti[i]}")
+        print(uvod)
         try:
-            vnos = int(input(f"Vnesi izbiro: (1-{str(len(možnosti))})\t"))
-            assert not len(možnosti) < vnos or vnos < 1
+            vnos = int(input(f"Vnesi izbiro: (1–{str(len(možnosti))})\t"))
+            assert not len(možnosti) < vnos and not vnos < 1
         except (ValueError, AssertionError) as e:
             neveljavna_izbira(e)
-            # continue
         except KeyboardInterrupt as e:
             izhod(e)
         else:
@@ -83,7 +87,7 @@ def ukaznavrstica():
             naslov = args.kraj
     else:
         naslov = "Ljubljana"
-    print(vremenko.vreme.vremenko_izpis(naslov.lower(), args.kratko))
+    print(vremenko_izpis(naslov.lower(), args.kratko))
 
 
 if __name__ == "__main__":
