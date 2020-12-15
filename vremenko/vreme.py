@@ -129,7 +129,7 @@ def vreme_izpis(vreme: Vreme,
     if vreme is None:
         return "Podatkov o vremenu trenutno ni. "
 
-    izpis = f"Podatki za {n.KRAJI_SKLONI[vreme.kraj]}.\n"
+    izpis = f"Podatki za {n.KRAJI_SKLONI[vreme.kraj]}\n"
     if vreme.čas:
         izpis = f"{izpis.rstrip()} ob {ura_izpis(vreme.čas)}.\n"
 
@@ -240,7 +240,7 @@ def veter_izpis_kratko(veter: Veter
 
 
 def onesnaženost_podatki(stran,  # lxml.etree._Element
-                         kraj: str = "Ljubljana",
+                         kraj: str,  # "Ljubljana",
                          šifre: dict = n.ZRAK_ŠIFRE,
                          kategorije: dict = n.ZRAK_KATEGORIJE
                          ) -> Onesnaženost:
@@ -388,7 +388,7 @@ def dan_izpis(dan: Dan
     izpis = (f"Danes je {datum_izpis(dan.vzhod)}, tj. {dan.zaporedni_v_letu}. "
              f"dan v letu. Sončni vzhod je ob {ura_izpis(dan.vzhod)}, "
              f"zahod ob {ura_izpis(dan.zahod)}, dan traja "
-             f"{str(dan.dolžina_dneva)[:-3].replace(':', '.')}.")
+             f"{str(dan.dolžina_dneva)[:-3].replace(':', '.')}. ")
     return izpis
 
 
@@ -425,8 +425,8 @@ def vremenko_podatki(kraj: str  # "Ljubljana"
     osrednja funkcija, ki zbere podatke o vremenu (vreme, veter, dan,
     onesnaženost)
     """
-    stran_vreme = vremenko.poštar.pridobi_xml(n.URL_VREME_KRAJ[kraj])
-    if kraj in n.ZRAK_ŠIFRE.keys():
+    stran_vreme = vremenko.poštar.pridobi_xml(n.URL_VREME_KRAJ[kraj.lower()])
+    if kraj.lower() in n.ZRAK_ŠIFRE.keys():
         stran_onesnaženost = vremenko.poštar.pridobi_xml(n.URL_ZRAK)
     else:
         stran_onesnaženost = None

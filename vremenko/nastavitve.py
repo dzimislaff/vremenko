@@ -7,24 +7,24 @@ URL_ZRAK = "http://www.arso.gov.si/xml/zrak/ones_zrak_urni_podatki_zadnji.xml"
 
 # slovar s kombinacijo povezav: osnova + končnica
 URL_VREME_KRAJ = {
-    "Ljubljana": (URL_VREME + "LJUBL-ANA_BEZIGRAD_latest.xml"),
-    "Novo mesto": (URL_VREME + "NOVO-MES_latest.xml"),
-    "Rogaška Slatina": (URL_VREME + "ROGAS-SLA_latest.xml"),
-    "Metlika": (URL_VREME + "METLIKA_latest.xml"),
-    "Dobliče Črnomelj": (URL_VREME + "CRNOMELJ_latest.xml"),
-    "Koper Kapitanija": (URL_VREME + "KOPER_KAPET-IJA_latest.xml"),
-    "Celje": (URL_VREME + "CELJE_MEDLOG_latest.xml"),
-    "Kočevje": (URL_VREME + "KOCEVJE_latest.xml"),
-    "Maribor": (URL_VREME + "MARIBOR_VRBAN-PLA_latest.xml"),
-    "Podčetrtek": (URL_VREME + "PODCE-TEK_ATOMS-TOP_latest.xml"),
-    "Bilje Nova Gorica": (URL_VREME + "NOVA-GOR_BILJE_latest.xml"),
-    "Marinča vas": (URL_VREME + "MARIN-VAS_latest.xml"),
-    "Murska Sobota": (URL_VREME + "MURSK-SOB_latest.xml"),
-    "Trbovlje": (URL_VREME + "TRBOVLJE_latest.xml"),
-    "Krško": (URL_VREME + "KRSKO_NEK_latest.xml"),
-    "Nanos": (URL_VREME + "NANOS_latest.xml"),  # 1242 m
-    "Rogla": (URL_VREME + "ROGLA_latest.xml"),  # 1494 m
-    "Kredarica": (URL_VREME + "KREDA-ICA_latest.xml"),  # 2514 m
+    "ljubljana": (URL_VREME + "LJUBL-ANA_BEZIGRAD_latest.xml"),
+    "novo mesto": (URL_VREME + "NOVO-MES_latest.xml"),
+    "rogaška slatina": (URL_VREME + "ROGAS-SLA_latest.xml"),
+    "metlika": (URL_VREME + "METLIKA_latest.xml"),
+    "dobliče črnomelj": (URL_VREME + "CRNOMELJ_latest.xml"),
+    "koper kapitanija": (URL_VREME + "KOPER_KAPET-IJA_latest.xml"),
+    "celje": (URL_VREME + "CELJE_MEDLOG_latest.xml"),
+    "kočevje": (URL_VREME + "KOCEVJE_latest.xml"),
+    "maribor": (URL_VREME + "MARIBOR_VRBAN-PLA_latest.xml"),
+    "podčetrtek": (URL_VREME + "PODCE-TEK_ATOMS-TOP_latest.xml"),
+    "bilje nova gorica": (URL_VREME + "NOVA-GOR_BILJE_latest.xml"),
+    "marinča vas": (URL_VREME + "MARIN-VAS_latest.xml"),
+    "murska sobota": (URL_VREME + "MURSK-SOB_latest.xml"),
+    "trbovlje": (URL_VREME + "TRBOVLJE_latest.xml"),
+    "krško": (URL_VREME + "KRSKO_NEK_latest.xml"),
+    "nanos": (URL_VREME + "NANOS_latest.xml"),  # 1242 m
+    "rogla": (URL_VREME + "ROGLA_latest.xml"),  # 1494 m
+    "kredarica": (URL_VREME + "KREDA-ICA_latest.xml"),  # 2514 m
 }
 
 KRAJI_SKLONI = {
@@ -171,14 +171,14 @@ VETER_IZPIS = (
 
 # slovar z imenom kraja in šifro
 ZRAK_ŠIFRE = {
-    "Ljubljana": "E21",
-    "Maribor": "E22",
-    "Celje": "E23",
-    "Murska Sobota": "E24",
-    "Nova Gorica": "E25",
-    "Trbovlje": "E26",
-    "Koper": "E30",
-    "Novo mesto": "E418"
+    "ljubljana": "E21",
+    "maribor": "E22",
+    "celje": "E23",
+    "murska sobota": "E24",
+    "nova gorica": "E25",
+    "trbovlje": "E26",
+    "koper": "E30",
+    "novo mesto": "E418"
 }
 
 # slovar z z vrsto onesnaženja, enoto in mejno vrednostjo

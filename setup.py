@@ -5,8 +5,9 @@
 # https://github.com/navdeep-G/setup.py/blob/master/setup.py
 
 from setuptools import setup
+import __version__
 
-različica_programa = "0.2.5.4"
+različica_programa = __version__.__version__
 ime_programa = 'vremenko'
 opis_programa = "Preprost program, ki trenutne vremenske razmere izpiše ali \
                  shrani v podatkovno bazo. Podatke pridobi z ARSO-ve spletne \
@@ -16,7 +17,8 @@ email = 'nejc.mobilc@gmail.com'
 avtor = 'nejc'
 različica_pythona = "!=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, !=3.5.*, >=3.6.0"
 zahtevani_moduli = [
-    "click", "lxml", "python-dateutil", "requests"
+    "lxml", "python-dateutil", "requests"
+    # "click", "lxml", "python-dateutil", "requests"
 ]
 dodatni_moduli = {
     "testiranje": ["pytest"],
@@ -33,8 +35,7 @@ setup(
     install_requires=zahtevani_moduli,
     entry_points="""
         [console_scripts]
-        # vremenko=ukaznavrstica:ukaznavrstica
-        vremenko=vremenko.ukaznavrstica:ukaznavrstica
+        vreme=vremenko.ukaznavrstica:ukaznavrstica
     """,
     classifiers=[
         # Full list: https://pypi.python.org/pypi?%3Aaction=list_classifiers
