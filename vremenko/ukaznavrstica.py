@@ -3,7 +3,7 @@
 
 import argparse
 import logging
-import __version__
+from __version__ import __version__
 import vremenko.beleženje
 from vremenko.vreme import vremenko_izpis
 from vremenko.nastavitve import KRAJI_SKLONI, URL_VREME_KRAJ
@@ -55,26 +55,28 @@ def argumenti():
         prog="vremenko",
         epilog="Primer rabe: vreme izpis novo-mesto"
     )
-    parser.add_argument("-l", "--log", type=int, default=4,
+    parser.add_argument("--log", type=int, default=4, choices=[1, 2, 3, 4, 5],
                         help="vrsta dnevniških vnosov")
     parser.add_argument("--dnevnik", type=str,
                         help="beleženje v datoteko")
     parser.add_argument("--kratko", action="store_true", default=False,
                         help="kratka oblika izpisa v alinejah")
-    parser.add_argument("-v", "--verzija", action="version",
-                        version="%(prog)s {version}".format(
-                            version=__version__.__version__))
+    parser.add_argument("--verzija", action="version",
+                        version="%(prog)s {version}".format(version=__version__))
     subparsers = parser.add_subparsers(dest="ukaz")
     parser_kraji = subparsers.add_parser("kraji")
 
     parser_izpis = subparsers.add_parser("izpis")
     parser_izpis.add_argument("kraj", nargs="?", default="Ljubljana")
 
-    return parser.parse_args()
+    return (parser.parse_args(),  # args
+            parser)               # parser
 
 
 def ukaznavrstica():
-    args = argumenti()
+    argument = argumenti()
+    args = argument[0]
+    parser = argument[1]
     vremenko.beleženje.beleženje(args.dnevnik, args.log)
 
     if args.ukaz == "kraji":
@@ -83,8 +85,8 @@ def ukaznavrstica():
     elif args.ukaz == "izpis":
         if args.kraj.lower().replace("-", " ") in URL_VREME_KRAJ:
             naslov = args.kraj.lower().replace("-", " ")
-        elif args.kraj:
-            naslov = args.kraj
+        else:
+            parser.error("neveljavna izbira kraja")
     else:
         naslov = "Ljubljana"
     print(vremenko_izpis(naslov.lower(), args.kratko))

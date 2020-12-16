@@ -38,7 +38,7 @@ setup(
         vreme=vremenko.ukaznavrstica:ukaznavrstica
     """,
     classifiers=[
-        # Full list: https://pypi.python.org/pypi?%3Aaction=list_classifiers
+        # https://pypi.python.org/pypi?%3Aaction=list_classifiers
         'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.6',

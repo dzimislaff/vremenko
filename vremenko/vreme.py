@@ -121,6 +121,15 @@ def opis_vremena_izpis(opis_vremena: str,
                 f"{prevodi[deljen_opis[1]][1].lower()}. ")
 
 
+def vreme_izpis_glava(kraj: str,
+                      čas: datetime.datetime
+                      ) -> str:
+    izpis = f"Podatki za {kraj}\n"
+    if čas:
+        izpis = f"{izpis.rstrip()} ob {ura_izpis(čas)}.\n"
+    return izpis
+
+
 def vreme_izpis(vreme: Vreme,
                 ) -> str:
     """
@@ -129,9 +138,7 @@ def vreme_izpis(vreme: Vreme,
     if vreme is None:
         return "Podatkov o vremenu trenutno ni. "
 
-    izpis = f"Podatki za {n.KRAJI_SKLONI[vreme.kraj]}\n"
-    if vreme.čas:
-        izpis = f"{izpis.rstrip()} ob {ura_izpis(vreme.čas)}.\n"
+    izpis = vreme_izpis_glava(n.KRAJI_SKLONI[vreme.kraj], vreme.čas)
 
     if vreme.opis_vremena or vreme.opis_vremena == 0:
         izpis += opis_vremena_izpis(vreme.opis_vremena, n.OPIS_VREMENA)
@@ -206,7 +213,7 @@ def vrednosti_izpis(vrednosti: tuple,
     """
     ustvari seznam z vrednostmi z enotami: ['Ni podatka', '2.4 °C' ...]
     """
-    return [f"{i} {j}" for i, j in zip(vrednosti, enote)]
+    return [f"{str(i).replace('.',',').replace('None', '0')} {j}" for i, j in zip(vrednosti, enote)]
 
 
 def vreme_izpis_kratko(vreme: Vreme,
@@ -217,11 +224,8 @@ def vreme_izpis_kratko(vreme: Vreme,
     kategorije = kategorije_izpis(vreme._fields[2:7])
     vrednosti = vrednosti_izpis(vreme[2:7], vreme[7:])
     # "partCloudy 0" -> "delno oblačno"
-    vrednosti[0] = n.OPIS_VREMENA[vrednosti[0].split(" ")[0]][0]
-
-    izpis = f"Podatki za {n.KRAJI_SKLONI[vreme.kraj]}.\n"
-    if vreme.čas:
-        izpis = f"{izpis.rstrip()} ob {ura_izpis(vreme.čas)}.\n"
+    vrednosti[0] = n.OPIS_VREMENA[str(vreme.opis_vremena)][0]
+    izpis = vreme_izpis_glava(n.KRAJI_SKLONI[vreme.kraj], vreme.čas)
     return alineje_izpis(kategorije, vrednosti, izpis)
 
 
@@ -329,7 +333,7 @@ def datum_izpis(dtm):
     try:
         return dtm.date().strftime("%-d. %-m. %Y")
     except ValueError as e:
-        logging.info("Windows ne podpira izpisa v obliki %-d -> %d")
+        logging.info(f"Windows ne podpira izpisa v obliki %-d -> %d; {e}")
         return dtm.date().strftime("%d. %m. %Y")
 
 
