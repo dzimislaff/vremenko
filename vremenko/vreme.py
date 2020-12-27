@@ -458,14 +458,14 @@ def izpisnik(podatki: Podatki,
     """
     kliče funkcije vreme_izpis oz. vreme_izpis_kratko itd.
     """
-    ukazi = ["vreme_izpis", "veter_izpis", "dan_izpis", "onesnaženost_izpis"]
+    ukazi = [vreme_izpis, veter_izpis, dan_izpis, onesnaženost_izpis]
     if alineje:
         ukazi = [i + "_kratko" for i in ukazi]
     izpis = ""
     for ukaz, podatek in zip(ukazi, podatki):
-        odgovor = eval(ukaz)(podatek)
+        odgovor = ukaz(podatek)
         if odgovor:
-            izpis += eval(ukaz)(podatek)
+            izpis += ukaz(podatek)
     return izpis
 
 

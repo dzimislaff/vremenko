@@ -45,10 +45,11 @@ def uporabnikovo_izbiranje_kraja(KRAJI: dict
     return možnosti[vnos - 1]
 
 
-def argumenti():
+def ukazi():
     """
     razbere ukaz iz ukazne vrstice
     """
+    # TODO sporočila v globalne spremenljivke
     parser = argparse.ArgumentParser(
         description="Preprost program, ki izpiše trenutne vremenske razmere.\
                     Podatke pridobi z ARSO-ve spletne strani.",
@@ -69,27 +70,27 @@ def argumenti():
     parser_izpis = subparsers.add_parser("izpis")
     parser_izpis.add_argument("kraj", nargs="?", default="Ljubljana")
 
-    return (parser.parse_args(),  # args
+    return (parser.parse_args(),  # ukaz
             parser)               # parser
 
 
 def ukaznavrstica():
-    argument = argumenti()
-    args = argument[0]
-    parser = argument[1]
-    vremenko.beleženje.beleženje(args.dnevnik, args.log)
+    izbrani_ukazi = ukazi()
+    ukaz = izbrani_ukazi[0]
+    parser = izbrani_ukazi[1]
+    vremenko.beleženje.beleženje(ukaz.dnevnik, ukaz.log)
 
-    if args.ukaz == "kraji":
+    if ukaz.ukaz == "kraji":
         naslov = uporabnikovo_izbiranje_kraja(URL_VREME_KRAJ)
         print("")
-    elif args.ukaz == "izpis":
-        if args.kraj.lower().replace("-", " ") in URL_VREME_KRAJ:
-            naslov = args.kraj.lower().replace("-", " ")
+    elif ukaz.ukaz == "izpis":
+        if ukaz.kraj.lower().replace("-", " ") in URL_VREME_KRAJ:
+            naslov = ukaz.kraj.lower().replace("-", " ")
         else:
             parser.error("neveljavna izbira kraja")
     else:
         naslov = "Ljubljana"
-    print(vremenko_izpis(naslov.lower(), args.kratko))
+    print(vremenko_izpis(naslov.lower(), ukaz.kratko))
 
 
 if __name__ == "__main__":

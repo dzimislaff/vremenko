@@ -5,7 +5,7 @@ import sqlite3
 from sqlite3 import Error
 import logging
 import time
-from vremenko.nastavitve import KRAJI_SKLONI, OPIS_VREMENA, VETER_IZPIS
+from vremenko.nastavitve import URL_VREME_KRAJ, OPIS_VREMENA, VETER_IZPIS
 from vremenko.vreme import vremenko_podatki
 
 
@@ -168,7 +168,7 @@ def posodobi_podatkovno(podatkovna: str,  # "ljubljana-2020-11.db"
     """
     osrednja funkcija, ki vnese zbrane podatke v podatkovno bazo
     """
-    if kraj not in KRAJI_SKLONI.keys():
+    if kraj.lower() not in URL_VREME_KRAJ.keys():
         logging.warning("Za ta kraj ne morem pridobiti podatkov.")
     else:
         podatki = vremenko_podatki(kraj)
@@ -184,7 +184,7 @@ def posodobi_podatkovno(podatkovna: str,  # "ljubljana-2020-11.db"
         # tabela vreme
         if podatki.vreme:
             # vreme brez enot + veter brez enot
-            podatki_vreme = list(podatki.vreme[:7] + podatki.veter[:3])
+            podatki_vreme = list(podatki.vreme[1:8] + podatki.veter[:3])
             podatki_vreme[0] = pretvori_unixepoch(podatki_vreme[0])
             if podatki_vreme[1]:
                 podatki_vreme[1] = pretvori_opis_vremena(podatki_vreme[1])
@@ -205,4 +205,4 @@ if __name__ == '__main__':
     posodobi_podatkovno(
         input("Vnesite ime in lokacijo podatkovne baze.\n"),
         input("\nVnesite ime kraja.\n")
-        )
+    )
