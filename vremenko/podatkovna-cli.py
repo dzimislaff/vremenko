@@ -29,7 +29,7 @@ def main():
     args = argumenti()
     vremenko.beleženje.beleženje(args.dnevnik, args.log)
     vremenko.podatkovna.posodobi_podatkovno(args.podatkovna,
-                                            args.kraj,
+                                            args.kraj.lower(),
                                             )
 
 

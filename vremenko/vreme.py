@@ -272,7 +272,7 @@ def onesnaženost_podatki(stran,  # lxml.etree._Element
                 pass
         return False
 
-    šifra = šifre[kraj.lower()]
+    šifra = šifre[kraj]
     onesnaženost = [vnesi(i, šifra) for i in kategorije]
     onesnaženost.append(čist_zrak(onesnaženost))
 
