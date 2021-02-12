@@ -166,7 +166,7 @@ def vreme_izpis(vreme: Vreme,
 
     if vreme.vsota_padavin not in ("0", None):
         izpis += (f"Zapadlo je "
-                  f"{vreme.vsota_padavin} "
+                  f"{vreme.vsota_padavin.replace('.', ',')} "
                   f"{vreme.vsota_padavin_enota} padavin. ")
     return izpis
 
@@ -347,7 +347,6 @@ def čas_uredi(niz: str  # "06.04.2020 19:38 CEST"
     """
     if type(niz) != str:
         return None
-    # TODO test za Dobliče Črnomelj in Koper Kapitanija
     elif not (16 <= len(niz) <= 21):
         return None
 
@@ -460,7 +459,8 @@ def izpisnik(podatki: Podatki,
     """
     ukazi = [vreme_izpis, veter_izpis, dan_izpis, onesnaženost_izpis]
     if alineje:
-        ukazi = [i + "_kratko" for i in ukazi]
+        ukazi = [vreme_izpis_kratko, veter_izpis_kratko,
+                 dan_izpis_kratko, onesnaženost_izpis_kratko]
     izpis = ""
     for ukaz, podatek in zip(ukazi, podatki):
         odgovor = ukaz(podatek)
