@@ -8,6 +8,12 @@ import vremenko.beleženje
 from vremenko.vreme import vremenko_izpis
 from vremenko.nastavitve import KRAJI_SKLONI, URL_VREME_KRAJ
 
+opis_programa = ("Preprost program, ki trenutne vremenske razmere izpiše ali "
+                 "shrani v podatkovno bazo. Podatke pridobi z ARSO-ve spletne "
+                 "strani.")
+ime_programa = "vremenko"
+primer_rabe = "Primer rabe: vreme izpis novo-mesto"
+
 
 def uporabnikovo_izbiranje_kraja(KRAJI: dict
                                  ) -> str:  # ime kraja, npr.: Krško
@@ -49,12 +55,10 @@ def ukazi():
     """
     razbere ukaz iz ukazne vrstice
     """
-    # TODO sporočila v globalne spremenljivke
     parser = argparse.ArgumentParser(
-        description="Preprost program, ki izpiše trenutne vremenske razmere.\
-                    Podatke pridobi z ARSO-ve spletne strani.",
-        prog="vremenko",
-        epilog="Primer rabe: vreme izpis novo-mesto"
+        description=opis_programa,
+        prog=ime_programa,
+        epilog=primer_rabe
     )
     parser.add_argument("--log", type=int, default=4, choices=[1, 2, 3, 4, 5],
                         help="vrsta dnevniških vnosov")
@@ -64,9 +68,9 @@ def ukazi():
                         help="kratka oblika izpisa v alinejah")
     parser.add_argument("--verzija", action="version",
                         version="%(prog)s {version}".format(version=__version__))
+
     subparsers = parser.add_subparsers(dest="ukaz")
     parser_kraji = subparsers.add_parser("kraji")
-
     parser_izpis = subparsers.add_parser("izpis")
     parser_izpis.add_argument("kraj", nargs="?", default="Ljubljana")
 
