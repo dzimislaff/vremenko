@@ -40,6 +40,7 @@ setup(
     entry_points="""
         [console_scripts]
         vremenko=vremenko.ukaznavrstica:ukaznavrstica
+        podatkovna=vremenko.podatkovna:main
     """,
     classifiers=[
         # https://pypi.python.org/pypi?%3Aaction=list_classifiers
