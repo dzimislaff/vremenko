@@ -177,7 +177,7 @@ ZRAK_ŠIFRE = {
     "murska sobota": "E24",
     "nova gorica": "E25",
     "trbovlje": "E26",
-    "koper": "E30",
+    "koper kapitanija": "E30",
     "novo mesto": "E418"
 }
 
