@@ -168,8 +168,8 @@ def vreme_izpis(vreme: Vreme,
 
 
 def preveri_podatke_veter(veter):
-    if not any(veter[:3]):
-        return None
+    if any(veter[:3]):
+        return True
 
 
 def veter_izpis(veter: Veter
