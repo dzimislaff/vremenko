@@ -2,50 +2,70 @@
 # -*- coding: 'UTF-8' -*-
 
 URL_VREME = ("http://meteo.arso.gov.si/uploads/probase/www/observ/surface/text/sl/"
-             "observationAms_")
+             "observationAms_", "_latest.xml")
 URL_ZRAK = "http://www.arso.gov.si/xml/zrak/ones_zrak_urni_podatki_zadnji.xml"
 
 # slovar s kombinacijo povezav: osnova + končnica
 URL_VREME_KRAJ = {
-    "ljubljana": (URL_VREME + "LJUBL-ANA_BEZIGRAD_latest.xml"),
-    "novo mesto": (URL_VREME + "NOVO-MES_latest.xml"),
-    "rogaška slatina": (URL_VREME + "ROGAS-SLA_latest.xml"),
-    "metlika": (URL_VREME + "METLIKA_latest.xml"),
-    "dobliče črnomelj": (URL_VREME + "CRNOMELJ_latest.xml"),
-    "koper kapitanija": (URL_VREME + "KOPER_KAPET-IJA_latest.xml"),
-    "celje": (URL_VREME + "CELJE_MEDLOG_latest.xml"),
-    "kočevje": (URL_VREME + "KOCEVJE_latest.xml"),
-    "maribor": (URL_VREME + "MARIBOR_VRBAN-PLA_latest.xml"),
-    "podčetrtek": (URL_VREME + "PODCE-TEK_ATOMS-TOP_latest.xml"),
-    "bilje nova gorica": (URL_VREME + "NOVA-GOR_BILJE_latest.xml"),
-    "marinča vas": (URL_VREME + "MARIN-VAS_latest.xml"),
-    "murska sobota": (URL_VREME + "MURSK-SOB_latest.xml"),
-    "trbovlje": (URL_VREME + "TRBOVLJE_latest.xml"),
-    "krško": (URL_VREME + "KRSKO_NEK_latest.xml"),
-    "nanos": (URL_VREME + "NANOS_latest.xml"),  # 1242 m
-    "rogla": (URL_VREME + "ROGLA_latest.xml"),  # 1494 m
-    "kredarica": (URL_VREME + "KREDA-ICA_latest.xml"),  # 2514 m
+    "bilje nova gorica": "NOVA-GOR_BILJE",
+    "celje": "CELJE_MEDLOG",
+    "dobliče črnomelj": "CRNOMELJ",
+    "idrija": "IDRIJA_CISTI-NAP",
+    "ilirska bistrica": "ILIRS-BIS",
+    "koper kapitanija": "KOPER_KAPET-IJA",
+    "kočevje": "KOCEVJE",
+    "kranj": "KRANJ",
+    "krško": "KRSKO_NEK",
+    "ljubljana": "LJUBL-ANA_BEZIGRAD",
+    "maribor": "MARIBOR_VRBAN-PLA",
+    "marinča vas": "MARIN-VAS",
+    "metlika": "METLIKA",
+    "murska sobota": "MURSK-SOB",
+    "novo mesto": "NOVO-MES",
+    "podčetrtek": "PODCE-TEK_ATOMS-TOP",
+    "postojna": "POSTOJNA",
+    "rogaška slatina": "ROGAS-SLA",
+    "tolmin volče": "TOLMIN_VOLCE",
+    "trbovlje": "TRBOVLJE",
+    "velike lašče": "VELIK-LAS",
+    "vrhnika": "VRHNIKA",
+    # gore
+    "kredarica": "KREDA-ICA",  # 2514 m
+    "miklavž na gorjancih": "MIKLAVZ_NA-GOR",  # 959 m
+    "nanos": "NANOS",  # 1242 m
+    "rogla": "ROGLA",  # 1494 m
+    "rudno polje": "RUDNO-POL",  # 1344 m
 }
 
 KRAJI_SKLONI = {
-    "Ljubljana": "Ljubljano",
-    "Novo mesto": "Novo mesto",
-    "Rogaška Slatina": "Rogaško Slatino",
-    "Metlika": "Metliko",
-    "Dobliče Črnomelj": "Dobliče pri Črnomlju",
-    "Koper Kapitanija": "Koper",
-    "Celje": "Celje",
-    "Kočevje": "Kočevje",
-    "Maribor": "Maribor",
-    "Podčetrtek": "Podčetrtek",
     "Bilje Nova Gorica": "Bilje pri Novi Gorici",
-    "Marinča vas": "Marinčo vas",
-    "Murska Sobota": "Mursko Soboto",
-    "Trbovlje": "Trbovlje",
+    "Celje": "Celje",
+    "Dobliče Črnomelj": "Dobliče pri Črnomlju",
+    "Idrija": "Idrijo",
+    "Ilirska Bistrica": "Ilirsko Bistrico",
+    "Koper Kapitanija": "Koper",
+    "Kočevje": "Kočevje",
+    "Kranj": "Kranj",
     "Krško": "Krško",
+    "Ljubljana": "Ljubljano",
+    "Maribor": "Maribor",
+    "Marinča vas": "Marinčo vas",
+    "Metlika": "Metliko",
+    "Murska Sobota": "Mursko Soboto",
+    "Novo mesto": "Novo mesto",
+    "Podčetrtek": "Podčetrtek",
+    "Postojna": "Postojno",
+    "Rogaška Slatina": "Rogaško Slatino",
+    "Tolmin - Volče": "Tolmin Volče",
+    "Trbovlje": "Trbovlje",
+    "Velike Lašče": "Velike Lašče",
+    "Vrhnika": "Vrhniko",
+    # gore
+    "Miklavž na Gorjancih": "Miklavž na Gorjancih",
     "Nanos": "Nanos",
     "Rogla": "Roglo",
     "Kredarica": "Kredarico",
+    "Rudno polje": "Rudno polje",
 }
 
 # slovarja z imenom kategorije in xpathom do podatka v XML-datoteki

@@ -18,7 +18,11 @@ _vreme()
     #
     case "${prev}" in
         izpis)
-            local running="ljubljana novo-mesto rogaška-slatina metlika dobliče-črnomelj koper-kapitanija celje kočevje maribor podčetrtek bilje-nova-gorica marinča-vas murska-sobota trbovlje krško nanos rogla kredarica"
+            local running="ljubljana novo-mesto rogaška-slatina metlika \
+            dobliče-črnomelj koper-kapitanija bilje-nova-gorica celje idrija \
+            ilirska-bistrica kočevje kranj kredarica krško maribor marinča-vas \
+            miklavž-na-gorjancih murska-sobota nanos podčetrtek postojna rogla \
+            rudno-polje tolmin-volče trbovlje velike-lašče vrhnika"
             COMPREPLY=( $(compgen -W "${running}" -- ${cur}) )
             return 0
             ;;

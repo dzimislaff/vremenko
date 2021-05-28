@@ -5,7 +5,7 @@ import pytest
 import datetime
 import vremenko.vreme
 import vremenko.poštar
-from vremenko.nastavitve import URL_VREME_KRAJ, XPATH_VREME
+from vremenko.nastavitve import URL_VREME, URL_VREME_KRAJ, XPATH_VREME
 
 
 kraji = vremenko.nastavitve.URL_VREME_KRAJ.keys()
@@ -13,7 +13,8 @@ kraji = vremenko.nastavitve.URL_VREME_KRAJ.keys()
 
 @pytest.mark.parametrize('kraj', kraji)
 def test_vreme_podatki(kraj):
-    stran = vremenko.poštar.pridobi_xml(URL_VREME_KRAJ[kraj])
+    stran = vremenko.poštar.pridobi_xml(
+        URL_VREME[0] + URL_VREME_KRAJ[kraj.lower()] + URL_VREME[1])
     podatki = vremenko.vreme.vreme_podatki(XPATH_VREME, stran)
     podatki[1] = vremenko.vreme.čas_uredi(podatki[1])
     podatki = vremenko.vreme.Vreme(*podatki)
