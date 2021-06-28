@@ -84,7 +84,7 @@ def razberi_podatke(xpath: str,
         return stran.xpath(xpath)[0].text
     except (ValueError, IndexError) as e:
         logging.warning(f"nisem uspel razbrati podatka: {xpath}; {e}")
-        return None
+        return
 
 
 def vreme_podatki(xpath: tuple,
@@ -178,7 +178,7 @@ def veter_izpis(veter: Veter
     podatke o vetru pretvori v besedilo
     """
     if not preveri_podatke_veter(veter):
-        return None
+        return
     else:
         izpis = (f"Piha {veter.smer_vetra} "
                  f"s hitrostjo {veter.hitrost_vetra.replace('.', ',')} "
@@ -236,7 +236,7 @@ def veter_izpis_kratko(veter: Veter
     podatke o vetru pretvori v kratko besedilo v alinejah
     """
     if not preveri_podatke_veter(veter):
-        return None
+        return
     else:
         kategorije = kategorije_izpis(veter._fields[:3])
         vrednosti = vrednosti_izpis(veter[1:3], veter[3:])
@@ -253,7 +253,7 @@ def onesnaženost_podatki(stran,  # lxml.etree._Element
     iz XML-ja razbere podatke o onesnaženosti zraka
     """
     if not preveri_dostopnost_podatkov(stran):
-        return None
+        return
 
     def vnesi(i, šifra):
         try:
@@ -262,7 +262,7 @@ def onesnaženost_podatki(stran,  # lxml.etree._Element
         except IndexError as e:
             logging.warning(
                 f"nisem uspel razbrati podatka o onesnaženosti {i}; {e}")
-            return None
+            return
 
     def čist_zrak(podatki):
         for i, j in zip(podatki, kategorije):
@@ -278,7 +278,7 @@ def onesnaženost_podatki(stran,  # lxml.etree._Element
     onesnaženost.append(čist_zrak(onesnaženost))
 
     if not any(onesnaženost):
-        return None
+        return
     else:
         xpath = f"/arsopodatki/postaja[@sifra='{šifra}']/datum_do"  # čas
         onesnaženost.insert(0, čas_uredi(razberi_podatke(xpath, stran)))
@@ -347,9 +347,9 @@ def čas_uredi(niz: str  # "06.04.2020 19:38 CEST"
         xml_poleti = "06.04.2020 19:38 CEST"
     """
     if type(niz) != str:
-        return None
+        return
     elif not (16 <= len(niz) <= 21):
-        return None
+        return
 
     slo_časovni_pas = tz.gettz("Europe/Ljubljana")
     niz = niz.rstrip(" CEST").rstrip(" CET")
@@ -374,7 +374,7 @@ def dan_podatki(stran  # lxml.etree._Element
 
     if not vzhod:
         logging.warning("nisem uspel razbrati podatka o vzhodu")
-        return None
+        return
     else:
         dolžina_dneva = zahod - vzhod
         zaporedni_v_letu = vzhod.timetuple().tm_yday
@@ -392,7 +392,7 @@ def dan_izpis(dan: Dan
     podatke o dnevu pretvori v besedilo
     """
     if not any(dan):
-        return None
+        return
 
     izpis = (f"Danes je {datum_izpis(dan.vzhod)}, tj. {dan.zaporedni_v_letu}. "
              f"dan v letu. Sončni vzhod je ob {ura_izpis(dan.vzhod)}, "
