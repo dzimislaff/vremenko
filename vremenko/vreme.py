@@ -435,7 +435,7 @@ def vremenko_podatki(kraj: str  # "Ljubljana"
     onesnaženost)
     """
     stran_vreme = vremenko.poštar.pridobi_xml(
-        n.URL_VREME[0] + n.URL_VREME_KRAJ[kraj.lower()] + n.URL_VREME[1])
+        n.URL_VREME[0] + n.KRAJI_URL[kraj.lower()] + n.URL_VREME[1])
     if kraj.lower() in n.ZRAK_ŠIFRE.keys():
         stran_onesnaženost = vremenko.poštar.pridobi_xml(n.URL_ZRAK)
     else:

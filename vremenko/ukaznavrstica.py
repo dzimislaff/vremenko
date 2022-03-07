@@ -6,7 +6,7 @@ import logging
 from __version__ import __version__
 import vremenko.beleženje
 from vremenko.vreme import vremenko_izpis
-from vremenko.nastavitve import KRAJI_SKLONI, URL_VREME_KRAJ
+from vremenko.nastavitve import KRAJI_SKLONI, KRAJI_URL
 
 opis_programa = ("Preprost program, ki trenutne vremenske razmere izpiše ali "
                  "shrani v podatkovno bazo. Podatke pridobi z ARSO-ve spletne "
@@ -85,10 +85,10 @@ def ukaznavrstica():
     vremenko.beleženje.beleženje(ukaz.dnevnik, ukaz.log)
 
     if ukaz.ukaz == "kraji":
-        naslov = uporabnikovo_izbiranje_kraja(URL_VREME_KRAJ)
+        naslov = uporabnikovo_izbiranje_kraja(KRAJI_URL)
         print("")
     elif ukaz.ukaz == "izpis":
-        if ukaz.kraj.lower().replace("-", " ") in URL_VREME_KRAJ:
+        if ukaz.kraj.lower().replace("-", " ") in KRAJI_URL:
             naslov = ukaz.kraj.lower().replace("-", " ")
         else:
             parser.error("neveljavna izbira kraja")

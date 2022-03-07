@@ -3,16 +3,16 @@
 
 URL_VREME = ("http://meteo.arso.gov.si/uploads/probase/www/observ/surface/text/sl/"
              "observationAms_", "_latest.xml")
-URL_ZRAK = "http://www.arso.gov.si/xml/zrak/ones_zrak_urni_podatki_zadnji.xml"
+URL_ONESNAŽENOST = "http://www.arso.gov.si/xml/zrak/ones_zrak_urni_podatki_zadnji.xml"
 
 # slovar s kombinacijo povezav: osnova + končnica
 KRAJI_URL = {
-    "bilje nova gorica": "NOVA-GOR_BILJE",
+    "nova gorica": "NOVA-GOR_BILJE",
     "celje": "CELJE_MEDLOG",
-    "dobliče črnomelj": "CRNOMELJ",
+    "črnomelj": "CRNOMELJ",
     "idrija": "IDRIJA_CISTI-NAP",
     "ilirska bistrica": "ILIRS-BIS",
-    "koper kapitanija": "KOPER_KAPET-IJA",
+    "koper": "KOPER_KAPET-IJA",
     "kočevje": "KOCEVJE",
     "kranj": "KRANJ",
     "krško": "KRSKO_NEK",
@@ -25,26 +25,26 @@ KRAJI_URL = {
     "podčetrtek": "PODCE-TEK_ATOMS-TOP",
     "postojna": "POSTOJNA",
     "ptuj": "PTUJ",
-    "rogaška slatina": "ROGAS-SLA",
-    "tolmin volče": "TOLMIN_VOLCE",
+    "rogaška Slatina": "ROGAS-SLA",
+    "tolmin": "TOLMIN_VOLCE",
     "trbovlje": "TRBOVLJE",
     "velike lašče": "VELIK-LAS",
     "vrhnika": "VRHNIKA",
     # gore
     "kredarica": "KREDA-ICA",  # 2514 m
-    "miklavž na gorjancih": "MIKLAVZ_NA-GOR",  # 959 m
+    "gorjanci": "MIKLAVZ_NA-GOR",  # 959 m
     "nanos": "NANOS",  # 1242 m
     "rogla": "ROGLA",  # 1494 m
     "rudno polje": "RUDNO-POL",  # 1344 m
 }
 
 KRAJI_SKLONI = {
-    "Bilje Nova Gorica": "Bilje pri Novi Gorici",
+    "Nova Gorica": "Bilje pri Novi Gorici",
     "Celje": "Celje",
-    "Dobliče Črnomelj": "Dobliče pri Črnomlju",
+    "Črnomelj": "Dobliče pri Črnomlju",
     "Idrija": "Idrijo",
     "Ilirska Bistrica": "Ilirsko Bistrico",
-    "Koper Kapitanija": "Koper",
+    "Koper": "Koper",
     "Kočevje": "Kočevje",
     "Kranj": "Kranj",
     "Krško": "Krško",
@@ -58,7 +58,7 @@ KRAJI_SKLONI = {
     "Postojna": "Postojno",
     "Ptuj": "Ptuj",
     "Rogaška Slatina": "Rogaško Slatino",
-    "Tolmin - Volče": "Tolmin Volče",
+    "Tolmin": "Tolmin Volče",
     "Trbovlje": "Trbovlje",
     "Velike Lašče": "Velike Lašče",
     "Vrhnika": "Vrhniko",
@@ -72,17 +72,16 @@ KRAJI_SKLONI = {
 
 # slovarja z imenom kategorije in xpathom do podatka v XML-datoteki
 XPATH_VREME = (
-    "/data/metData/domain_longTitle",  # kraj
+    # "/data/metData/domain_longTitle",  # kraj
     "/data/metData/tsValid_issued",  # čas
+    "/data/metData/sunrise",  # sončni vzhod
+    "/data/metData/sunset",  # sončni zahod
     "/data/metData/nn_icon-wwsyn_icon",  # opis vremena
     "/data/metData/t",  # temperatura
     "/data/metData/rh",  # relativna vlaga
     "/data/metData/mslavg",  # tlak
     "/data/metData/gSunRadavg",  # povprečno sončno obsevanje
     "/data/metData/rr_val",  # vsota padavin
-)
-
-XPATH_VETER = (
     "/data/metData/ddavg_longText",  # smer vetra
     "/data/metData/ffavg_val",  # hitrost vetra
     "/data/metData/ffmax_val_kmh",  # sunki vetra
