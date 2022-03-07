@@ -3,9 +3,9 @@
 
 import pytest
 import vremenko.vreme
-from vremenko.nastavitve import URL_VREME_KRAJ
+from vremenko.nastavitve import KRAJI_URL
 
 
-@pytest.mark.parametrize('kraji', URL_VREME_KRAJ.keys())
+@pytest.mark.parametrize('kraji', KRAJI_URL.keys())
 def test_vremenko_izpis(kraji):
     assert type(vremenko.vreme.vremenko_izpis(kraji)) == str

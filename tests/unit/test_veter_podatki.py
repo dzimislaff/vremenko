@@ -4,16 +4,16 @@
 import pytest
 import vremenko.vreme
 import vremenko.poštar
-from vremenko.nastavitve import URL_VREME, URL_VREME_KRAJ, XPATH_VETER
+from vremenko.nastavitve import URL_VREME, KRAJI_URL, XPATH_VETER
 
 
-kraji = vremenko.nastavitve.URL_VREME_KRAJ.keys()
+kraji = vremenko.nastavitve.KRAJI_URL.keys()
 
 
 @pytest.mark.parametrize('kraj', kraji)
 def test_veter_podatki(kraj):
     stran = vremenko.poštar.pridobi_xml(
-        URL_VREME[0] + URL_VREME_KRAJ[kraj.lower()] + URL_VREME[1])
+        URL_VREME[0] + KRAJI_URL[kraj.lower()] + URL_VREME[1])
     podatki = vremenko.vreme.vreme_podatki(XPATH_VETER, stran)
     podatki = vremenko.vreme.Veter(*podatki)
     if podatki:
