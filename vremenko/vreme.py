@@ -346,7 +346,7 @@ def čas_uredi(niz: str  # "06.04.2020 19:38 CEST"
         xml_pozimi = "19.11.2020 18:00 CET"
         xml_poleti = "06.04.2020 19:38 CEST"
     """
-    if type(niz) != str:
+    if not isinstance(niz, str):
         return
     elif not (16 <= len(niz) <= 21):
         return
@@ -484,7 +484,7 @@ def vremenko_izpis(kraj: str,  # "Ljubljana"
     """
     podatki = vremenko_podatki(kraj)
 
-    if type(podatki) is not vremenko.vreme.Podatki:
+    if not isinstance(podatki, vremenko.vreme.Podatki):
         return podatki()  # kliče vreme_ni_podatkov() ali ni_povezave()
     else:
         return izpisnik(podatki, alineje)
