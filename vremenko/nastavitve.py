@@ -193,13 +193,14 @@ VETER_IZPIS = (
 
 # slovar z imenom kraja in šifro
 ZRAK_ŠIFRE = {
-    "ljubljana": "E21",
-    "maribor": "E22",
-    "celje": "E23",
-    "murska sobota": "E24",
-    "nova gorica": "E25",
-    "trbovlje": "E26",
-    "koper kapitanija": "E30",
+    "ljubljana": "E403",
+    "maribor": "E408",
+    "celje": "E411",
+    "murska sobota": "E409",
+    "kranj": "E417",
+    "nova gorica": "E421",
+    "trbovlje": "E413",
+    "koper kapitanija": "E423",
     "novo mesto": "E418"
 }
 
